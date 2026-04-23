@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>True Trading</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--amber:#e3a008;--adim:#b07d05;--green:#3fb950;--red:#f85149;--text:#c9d1d9;--tdim:#8b949e;--bdr:#30363d}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;min-height:100vh}
+
+/* START */
+#start-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;text-align:center}
+#start-screen h1{font-size:42px;font-weight:900;color:var(--amber);letter-spacing:4px;margin-bottom:8px}
+.start-sub{font-size:16px;color:var(--tdim);margin-bottom:40px;max-width:500px;line-height:1.6}
+.year-cards{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+.year-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:10px;padding:24px 32px;cursor:pointer;transition:border-color .2s,transform .2s;min-width:160px}
+.year-card:hover{border-color:var(--amber);transform:translateY(-3px)}
+.year-card h2{font-size:28px;font-weight:700;color:var(--amber);margin-bottom:6px}
+.year-card p{font-size:12px;color:var(--tdim);line-height:1.5}
+
+/* HEADER */
+#header{background:var(--bg2);border-bottom:1px solid var(--bdr);padding:10px 16px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px}
+#hd-logo{font-size:14px;font-weight:800;color:var(--amber);letter-spacing:2px;white-space:nowrap}
+#hd-month{text-align:center}
+#hd-month-big{font-size:28px;font-weight:900;color:#fff;letter-spacing:1px;line-height:1;text-transform:uppercase}
+#hd-month-sub{font-size:11px;color:var(--tdim);margin-top:2px}
+#hd-right{text-align:right}
+#prog-bar{background:var(--bg3);border-radius:4px;height:6px;overflow:hidden;margin-bottom:3px}
+#prog-fill{background:var(--amber);height:100%;transition:width .3s}
+#prog-text{font-size:10px;color:var(--tdim)}
+
+/* EVENT + BREAKDOWN BANNERS */
+#event-banner{display:none;background:var(--amber);color:#000;padding:10px 20px;position:relative}
+#event-banner.show{display:block;animation:fIn .25s ease}
+@keyframes fIn{from{opacity:0;transform:scaleY(0.7)}to{opacity:1;transform:scaleY(1)}}
+#eb-head{font-size:13px;font-weight:800}
+#eb-flav{font-size:11px;margin-top:2px;opacity:.8}
+#eb-turn{font-size:10px;position:absolute;right:14px;top:50%;transform:translateY(-50%);opacity:.6}
+#breakdown-banner{display:none;background:#6b0000;color:#fff;padding:10px 20px;border-top:2px solid #ff3333;animation:fIn .25s ease}
+#breakdown-banner.show{display:block}
+#bd-head{font-size:13px;font-weight:800;color:#ff9999}
+#bd-sub{font-size:11px;margin-top:2px;color:#ffcccc}
+
+/* 2-COL */
+#main-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 10px 0}
+@media(max-width:680px){#main-grid{grid-template-columns:1fr}}
+.panel{background:var(--bg2);border:1px solid var(--bdr);border-radius:6px;padding:11px}
+.ptitle{font-size:10px;font-weight:700;letter-spacing:1.2px;color:var(--amber);text-transform:uppercase;margin-bottom:8px}
+#curve-svg{width:100%;height:88px;display:block;overflow:visible}
+#funds-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px 10px;margin-bottom:7px}
+.fi{font-size:11px}.fi-l{color:var(--tdim)}.fi-v{color:var(--amber);font-family:'Courier New',monospace;font-weight:700}
+#mood-row{display:flex;gap:5px;margin-bottom:6px;flex-wrap:wrap}
+.mtag{font-size:10px;padding:2px 6px;border-radius:3px;font-weight:700}
+.mb{background:#1a3a1f;color:var(--green)}.mr{background:#2d1010;color:var(--red)}.mn{background:var(--bg3);color:var(--tdim)}
+.comm-lines{display:flex;flex-direction:column;gap:5px}
+.cline{font-size:11px;color:var(--tdim);font-style:italic;border-left:2px solid var(--adim);padding-left:7px;line-height:1.4}
+
+/* POS BAR */
+#pos-bar{background:var(--bg2);border:1px solid var(--bdr);border-radius:6px;padding:8px 14px;margin:10px 10px 0;display:flex;gap:18px;flex-wrap:wrap;align-items:center}
+.ps-l{font-size:10px;color:var(--tdim)}.ps-v{font-size:15px;font-weight:700;font-family:'Courier New',monospace;color:var(--amber)}
+.ps-v.g{color:var(--green)}.ps-v.r{color:var(--red)}
+
+/* CHART SECTION */
+#chart-section{background:var(--bg2);border:1px solid var(--bdr);border-radius:6px;margin:10px 10px 0;padding:12px}
+#year-toggle{display:flex;gap:6px;margin-bottom:10px;align-items:center}
+.ytbtn{padding:4px 12px;border:1px solid var(--bdr);background:var(--bg3);color:var(--tdim);border-radius:4px;cursor:pointer;font-size:12px;font-weight:600}
+.ytbtn.active{border-color:var(--amber);color:var(--amber);background:#1a1200}
+.yt-label{font-size:10px;color:var(--tdim);letter-spacing:.8px;text-transform:uppercase;margin-right:4px}
+#bar-svg-wrap{width:100%;overflow:hidden}
+#bar-svg{display:block;width:100%}
+
+/* TRADE CONTROLS */
+#trade-controls{margin-top:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-top:1px solid var(--bdr);padding-top:10px}
+#sel-info{font-size:12px;color:var(--tdim);flex:1;min-width:180px}
+#sel-info span{color:var(--text)}
+select{background:var(--bg3);border:1px solid var(--bdr);color:var(--text);padding:5px 7px;border-radius:4px;font-size:12px}
+select:focus{outline:none;border-color:var(--amber)}
+.btn{padding:6px 14px;border:none;border-radius:4px;cursor:pointer;font-weight:700;font-size:12px}
+.btn-buy{background:var(--green);color:#000}.btn-buy:hover:not(:disabled){background:#5fca70}
+.btn-sell{background:#2d1010;color:var(--red);border:1px solid var(--red)}.btn-sell:hover:not(:disabled){background:#3d1515}
+.btn-end{background:var(--amber);color:#000;padding:6px 18px}.btn-end:hover{background:#f0b818}
+.btn-tr{background:var(--bg3);color:var(--text);border:1px solid var(--bdr)}.btn-tr:hover:not(:disabled){border-color:var(--amber);color:var(--amber)}.btn-tr:disabled{opacity:.4;cursor:default}
+.btn:disabled{opacity:.4;cursor:default}
+#trade-msg{font-size:11px;color:var(--red);margin-top:5px;width:100%;min-height:15px}
+
+/* LOG */
+#log-wrap{background:var(--bg2);border:1px solid var(--bdr);border-radius:6px;margin:10px 10px 10px;max-height:120px;overflow-y:auto;padding:8px 10px}
+.le{font-size:11px;font-family:'Courier New',monospace;padding:2px 0;border-bottom:1px solid #1e2428;color:var(--tdim)}
+.lb{color:var(--green)}.ls{color:var(--red)}.lc{color:#555}.lev{color:var(--adim)}.lpnl{color:var(--amber)}
+
+/* MODALS */
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:100;align-items:center;justify-content:center}
+.mo.show{display:flex}
+.mb2{background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:22px;max-width:500px;width:92%;max-height:85vh;overflow-y:auto}
+.mb2 h2{color:var(--amber);margin-bottom:10px}
+.mb2 p{color:var(--text);line-height:1.6;margin-bottom:10px;font-size:13px}
+.tq{border-left:3px solid var(--amber);padding-left:12px;color:var(--text);font-style:italic;font-size:13px;line-height:1.7;margin-bottom:12px}
+.ms-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--bdr)}
+.ms-badge{padding:3px 10px;border-radius:4px;font-weight:700;font-size:11px;min-width:90px;text-align:center}
+.ms-risen{background:#f85149;color:#000}
+.ms-fallen{background:#3fb950;color:#000}
+.ms-flat{background:#30363d;color:var(--tdim)}
+.ms-detail{font-size:12px;color:var(--text)}
+.ms-sub{font-size:11px;color:var(--tdim);margin-top:1px}
+
+/* TUTORIAL */
+#tut-box{display:none;position:fixed;background:var(--bg2);border:2px solid var(--amber);border-radius:8px;padding:15px;max-width:290px;z-index:200}
+#tut-box h3{color:var(--amber);margin-bottom:7px;font-size:13px}
+#tut-box p{color:var(--text);font-size:12px;line-height:1.5;margin-bottom:10px}
+.tnav{display:flex;gap:8px;align-items:center}
+
+/* END SCREEN */
+#end-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:300;overflow-y:auto;padding:20px}
+#end-screen.show{display:block}
+#end-screen h1{color:var(--amber);font-size:22px;margin-bottom:6px}
+.grade-text{font-size:26px;font-weight:700;margin:10px 0}
+#end-chart{width:100%;height:180px;display:block;margin:12px 0}
+.esec{background:var(--bg2);border:1px solid var(--bdr);border-radius:6px;padding:14px;margin-bottom:14px}
+.esec h3{color:var(--amber);margin-bottom:10px;font-size:11px;letter-spacing:1px;text-transform:uppercase}
+.di{padding:4px 0;border-bottom:1px solid var(--bdr);font-size:12px;color:var(--tdim)}.di span{color:var(--text)}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:3px}
+
+/* MOBILE BLOCK */
+#mobile-wall{display:none;position:fixed;inset:0;background:var(--bg);z-index:9999;align-items:center;justify-content:center;text-align:center;padding:32px;flex-direction:column;gap:16px}
+@media(max-width:768px){#mobile-wall{display:flex}#start-screen,#game-screen,#end-screen{display:none!important}}
+#mobile-wall h2{font-size:22px;font-weight:800;color:var(--amber)}
+#mobile-wall p{font-size:14px;color:var(--tdim);line-height:1.7;max-width:320px}
+#mobile-wall .micon{font-size:48px;margin-bottom:4px}
+</style>
+</head>
+<body>
+
+<!-- MOBILE WALL -->
+<div id="mobile-wall">
+  <div class="micon">🖥️</div>
+  <h2>Desktop Only</h2>
+  <p>True Trading is designed for laptop and desktop screens.<br><br>Open this file on a desktop or laptop browser for the full experience.</p>
+</div>
+
+<!-- START SCREEN -->
+<div id="start-screen">
+  <h1>TRUE TRADING</h1>
+  <p class="start-sub">You are Head of Energy Procurement for a 120 GWh/year business. Buy power for your company's needs and beat the market average price. Choose your contract horizon:</p>
+  <div class="year-cards">
+    <div class="year-card" onclick="startGame(1)">
+      <h2>1 Year</h2>
+      <p>12 delivery months<br>~15 trading turns<br>Fast game</p>
+    </div>
+    <div class="year-card" onclick="startGame(2)">
+      <h2>2 Years</h2>
+      <p>24 delivery months<br>~27 trading turns<br>Standard game</p>
+    </div>
+    <div class="year-card" onclick="startGame(3)">
+      <h2>3 Years</h2>
+      <p>36 delivery months<br>~39 trading turns<br>Full challenge</p>
+    </div>
+  </div>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="game-screen" style="display:none">
+
+  <div id="header">
+    <div id="hd-logo">TRUE TRADING</div>
+    <div id="hd-month">
+      <div id="hd-month-big">—</div>
+      <div id="hd-month-sub">Current trading month</div>
+    </div>
+    <div id="hd-right">
+      <div id="prog-bar"><div id="prog-fill" style="width:0%"></div></div>
+      <div id="prog-text">Turn 1</div>
+    </div>
+  </div>
+
+  <div id="breakdown-banner">
+    <div id="bd-head">⚠ OPERATIONAL BREAKDOWN</div>
+    <div id="bd-sub">The CFO is on holiday — no trades can be authorised this month!</div>
+  </div>
+
+  <div id="event-banner">
+    <div id="eb-head"></div>
+    <div id="eb-flav"></div>
+    <div id="eb-turn"></div>
+  </div>
+
+  <div id="main-grid">
+    <div class="panel">
+      <div class="ptitle">Forward Curve</div>
+      <svg id="curve-svg" viewBox="0 0 560 88" preserveAspectRatio="none"></svg>
+    </div>
+    <div class="panel">
+      <div class="ptitle">Market Commentary</div>
+      <div id="funds-grid"></div>
+      <div id="mood-row"></div>
+      <div class="comm-lines" id="comm-lines"></div>
+    </div>
+  </div>
+
+  <div id="pos-bar">
+    <div><div class="ps-l">Portfolio Price</div><div class="ps-v" id="ps-avg">—</div></div>
+    <div><div class="ps-l">Market Avg Price</div><div class="ps-v" id="ps-bench">—</div></div>
+    <div><div class="ps-l">vs Market</div><div class="ps-v" id="ps-save">—</div></div>
+    <div><div class="ps-l">Total £ Impact</div><div class="ps-v" id="ps-impact">—</div></div>
+  </div>
+
+  <div id="chart-section">
+    <div id="year-toggle">
+      <span class="yt-label">View Year:</span>
+      <div id="ytbtn-wrap"></div>
+    </div>
+    <div id="bar-svg-wrap">
+      <svg id="bar-svg"></svg>
+    </div>
+    <div id="trade-controls">
+      <div id="sel-info">Click bars to select months, then BUY or SELL</div>
+      <select id="pct-sel">
+        <option value="10">10%</option><option value="20">20%</option>
+        <option value="30">30%</option><option value="40">40%</option>
+        <option value="50" selected>50%</option><option value="60">60%</option>
+        <option value="70">70%</option><option value="80">80%</option>
+        <option value="90">90%</option><option value="100">100%</option>
+      </select>
+      <button class="btn btn-buy" id="btn-buy" onclick="doBuy()">BUY</button>
+      <button class="btn btn-sell" id="btn-sell" onclick="doSell()">SELL</button>
+      <button class="btn btn-tr" id="btn-trader" onclick="showTrader()">🗣 Trader (<span id="tok-count">3</span>)</button>
+      <button class="btn btn-end" onclick="endTurn()">END TURN →</button>
+    </div>
+    <div id="trade-msg"></div>
+  </div>
+
+  <div id="log-wrap">
+    <div class="ptitle" style="margin-bottom:5px">Trade Log</div>
+    <div id="log-inner"></div>
+  </div>
+
+</div>
+
+<!-- MARKET SUMMARY MODAL -->
+<div class="mo" id="ms-modal">
+  <div class="mb2">
+    <h2>📊 Market Summary</h2>
+    <div id="ms-content"></div>
+    <button class="btn btn-end" style="margin-top:12px;width:100%" onclick="closeSummary()">Continue →</button>
+  </div>
+</div>
+
+<!-- TRADER MODAL -->
+<div class="mo" id="trader-modal">
+  <div class="mb2">
+    <h2>🗣 The Trader</h2>
+    <div class="tq" id="trader-msg"></div>
+    <button class="btn btn-end" onclick="closeModal('trader-modal')">Got it</button>
+  </div>
+</div>
+
+<!-- TUTORIAL -->
+<div id="tut-box">
+  <h3 id="tut-title"></h3>
+  <p id="tut-body"></p>
+  <div class="tnav">
+    <button class="btn btn-end" id="tut-next" onclick="tutNext()">Next →</button>
+    <button class="btn" style="background:var(--bg3);color:var(--tdim);font-size:11px" onclick="tutSkip()">Skip</button>
+    <span style="font-size:10px;color:var(--tdim)" id="tut-prog"></span>
+  </div>
+</div>
+
+<!-- END SCREEN -->
+<div id="end-screen">
+  <h1>⚡ Game Over — True Trading</h1>
+  <div id="end-headline" style="font-size:14px;color:var(--text);margin-bottom:6px"></div>
+  <div class="grade-text" id="end-grade"></div>
+  <div class="esec">
+    <h3>Achieved Price vs Market Average</h3>
+    <svg id="end-chart" viewBox="0 0 720 180" preserveAspectRatio="none"></svg>
+  </div>
+  <div class="esec"><h3>Strategy Breakdown</h3><div id="end-strategy"></div></div>
+  <div class="esec"><h3>Best &amp; Worst Decisions</h3><div id="end-decisions"></div></div>
+  <div class="esec"><h3>Key Market Events</h3><div id="end-events"></div></div>
+  <button class="btn btn-end" style="margin-top:8px" onclick="backToStart()">Play Again</button>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════════════════════════
+const MN_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const SEA_ADJ = [15,12,5,-5,-8,-10,-8,-5,2,8,12,14]; // index 0=Jan
+
+// Delivery: d=0 → April Y0
+function dMI(d){return(d+3)%12}
+function dYr(d){return Math.floor(d/12)+1}
+function dLbl(d){return MN[dMI(d)]+' Y'+dYr(d)}
+function dLblFull(d){return MN_FULL[dMI(d)]+' Year '+dYr(d)}
+function cashoutTurn(d){return d+3}
+
+// Trading: t=0 → January Y0
+function tMI(t){return t%12}
+function tYr(t){return t<3?0:Math.floor((t-3)/12)+1}
+function tLblFull(t){return MN_FULL[tMI(t)]+' Year '+tYr(t)}
+
+function fwdDist(t,d){return(d+3)-t}
+
+function randn(mu,sd){
+  const u=Math.random(),v=Math.random();
+  return mu+sd*Math.sqrt(-2*Math.log(Math.max(u,1e-10)))*Math.cos(2*Math.PI*v);
+}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function fmt(n){return typeof n==='number'?n.toFixed(2):'—'}
+function fmtK(n){const sign=n>=0?'+':'-';const abs=Math.abs(n);if(abs>=1000000)return sign+'£'+Math.round(abs).toLocaleString('en-GB');return sign+'£'+Math.round(abs/1000)+'k';}
+function rnd(a,b){return a+Math.floor(Math.random()*(b-a+1))}
+
+// ═══════════════════════════════════════════════════════════════
+// EVENTS
+// ═══════════════════════════════════════════════════════════════
+const EVENTS=[
+  {id:'rus_pipe',headline:'Russia halts gas pipeline flows through Ukraine',flavour:'European storage drawdown accelerating. Power prices following gas higher.',near:18,mid:12,far:6,decay:4},
+  {id:'cold_snap',headline:'UK cold snap: demand surges across the country',flavour:'National Grid issues emergency notice. Spot prices spike.',near:22,mid:8,far:2,decay:2},
+  {id:'wind_rec',headline:'Record wind generation sweeps UK & Europe',flavour:'Wind covering 65% of GB demand. Day-ahead prices collapsing.',near:-15,mid:-5,far:-2,decay:1},
+  {id:'nsea',headline:'North Sea platform forced offline after inspection',flavour:'Unplanned outage removes significant UK gas supply.',near:14,mid:9,far:4,decay:3},
+  {id:'mild_win',headline:'Mild winter forecast: demand outlook revised sharply down',flavour:'Storage draw to undershoot forecasts.',near:-10,mid:-8,far:-3,decay:3},
+  {id:'carbon',headline:'New carbon price floor announced at higher level',flavour:'Policy shock raises long-run cost of thermal generation.',near:6,mid:8,far:10,decay:6},
+  {id:'lng',headline:'New LNG terminal opens: supply surge expected',flavour:'UK import capacity expands. Bearish for gas and power.',near:-12,mid:-8,far:-4,decay:4},
+  {id:'heat',headline:'Heatwave drives record air-conditioning demand',flavour:'System length tightest since 2006.',near:20,mid:6,far:1,decay:2},
+  {id:'fr_nuke',headline:'French nuclear fleet returns to full capacity',flavour:'All reactors online. Interconnector flows to UK increase.',near:-8,mid:-10,far:-6,decay:5},
+  {id:'ic_fail',headline:'Interconnector cable between UK and France fails',flavour:'1.4GW export route lost. UK isolation premium returning.',near:16,mid:10,far:3,decay:2},
+  {id:'gasban',headline:'Government scraps new gas power plant approvals',flavour:'Long-run supply tightness baked in. Far curve lifts.',near:4,mid:6,far:12,decay:8},
+  {id:'solar',headline:'Solar capacity additions beat forecasts by 40%',flavour:'Record installations suppress summer demand peak.',near:-3,mid:-6,far:-10,decay:6},
+  {id:'strike',headline:'Strike at last major coal plant hits reserve margin',flavour:'Capacity market activation imminent.',near:18,mid:5,far:1,decay:1},
+  {id:'eu_cris',headline:'EU energy crisis contagion: cross-border imports reduced',flavour:'Continental buyers turning to UK spot.',near:12,mid:10,far:6,decay:3},
+  {id:'spring',headline:'Warmer-than-normal spring: storage rebuilds fast',flavour:'Injection season ahead of plan.',near:-8,mid:-6,far:-2,decay:2},
+  {id:'battery',headline:'New battery storage record: 10 GW now online',flavour:'Peak shaving improves dramatically.',near:-5,mid:-8,far:-10,decay:6},
+  {id:'mideast',headline:'Middle East tensions spike oil and energy complex',flavour:'Brent crude +8%. Gas and power following.',near:10,mid:8,far:5,decay:3},
+  {id:'ofgem',headline:'Ofgem announces capacity market reform',flavour:'Long-run revenue for new build improves.',near:-2,mid:-4,far:-8,decay:6},
+  {id:'oct_cold',headline:'Early cold snap in October: winter starting early',flavour:'Storage drawdown beginning 3 weeks ahead of average.',near:16,mid:10,far:2,decay:2},
+  {id:'ppa',headline:'Corporate RE100 pledges drive PPA demand',flavour:'Power purchase agreements consuming available renewable output.',near:3,mid:5,far:8,decay:5},
+  {id:'full_stor',headline:'Gas storage full ahead of winter: bearish signal',flavour:'Storage 98% full in late September.',near:-6,mid:-8,far:-3,decay:3},
+  {id:'nuke_ext',headline:'Nuclear outage extended by 3 months',flavour:'3.2GW off longer than expected.',near:10,mid:12,far:4,decay:3}
+];
+
+// ═══════════════════════════════════════════════════════════════
+// TRADER MESSAGES
+// ═══════════════════════════════════════════════════════════════
+const TRADER=[
+  {ctx:'geo_bull',msg:"That headline is real and the market's already moved. But geopolitical spikes always overshoot — give it two or three months and the curve will retrace half of this if storage holds up. Don't chase the top. If you've got winter still open, this might be your last clean entry."},
+  {ctx:'geo_bear',msg:"Bearish event and the market repriced quickly. These moves tend to stick if the weather cooperates, but don't assume it's the new normal. If you're short some summer months, this could be a decent window to hedge at better levels before any recovery."},
+  {ctx:'contango',msg:"The far curve looks expensive relative to where spot normally settles. Market's pricing in a lot of risk premium. I'd be looking at the nearby stuff first — that premium tends to erode as you get closer to delivery."},
+  {ctx:'backw',msg:"Backwardation is unusual in power. It's telling you the market thinks near-term tightness is temporary. Could be worth leaving a bit of your near months open if you can stomach the spot risk, and using that to buy the cheaper far months."},
+  {ctx:'under_late',msg:"You've got a lot of open volume and not many turns left. Spot cashout is a gamble — sometimes it works, usually it doesn't. I'd be getting something done on those open months even if the price feels uncomfortable. Regret is expensive."},
+  {ctx:'under_mid',msg:"You're behind on hedging. The curve's moved around but there's still time. I'd be layering in now rather than waiting for a perfect entry — waiting for perfection is how you end up with a lot of spot exposure."},
+  {ctx:'well_hdg',msg:"You're in good shape. Plenty of cover on the near months. Main thing now is don't panic on the noise — let the curve come to you on the far months rather than chasing every headline."},
+  {ctx:'early',msg:"You're at the start. Curve's relatively stable. This is the time to think strategy — consider building a base position in the far months while liquidity is good, then refine the near months as they approach."},
+  {ctx:'late',msg:"We're in the final stretch. Any months still open are going to cashout at spot price soon — most volatile price there is. If you're uncomfortable with that exposure, pay up and fix it now."},
+  {ctx:'pre_win',msg:"Winter curve is where the action is. The market's always nervous going into heating season. If you've got Q4 or Q1 months uncovered, get those done before the first cold snap."},
+  {ctx:'pre_sum',msg:"Summer's your cheapest buying window — demand is soft. If you've got summer months open, they're often worth being patient on. Don't pay up for them when the market's already bid."},
+  {ctx:'lo_stor',msg:"Storage is running tight. That's the kind of thing that starts small then everyone notices at once. I'd be watching the near-to-mid curve and not leaving too much unhedged."},
+  {ctx:'hi_stor',msg:"Storage is high and wind's been good. Classically bearish. That said, markets can stay irrational — if you need the cover, get it."},
+  {ctx:'flat',msg:"Curve's flat right now — no strong signal. Look for months where your running market average gives you a clear edge and chip away at those."},
+  {ctx:'season',msg:"The seasonal shape is real and persistent. Winter months price £15–20 above summer. Get winter covered earlier — that's where your budget risk sits."}
+];
+
+// ═══════════════════════════════════════════════════════════════
+// COMMENTARY
+// ═══════════════════════════════════════════════════════════════
+const CL={
+  fund:["Storage above seasonal norms — mild bearish pressure on near curve.","EU storage filling ahead of target. Supply-side comfort growing.","Gas storage at multi-year highs. Bearish fundamentals broadly intact.","Storage below seasonal average — watch for winter shortage premium building.","Gas storage lagging — injection season behind. Bullish signal for Q4.","Tight storage levels: risk premium quietly building in winter months.","Nuclear availability solid. No outage premium in near curve.","Wind generation above seasonal average. Renewables suppressing day-ahead.","Weak wind output this period. Gas burn elevated to meet demand.","Demand running above seasonal average. System stressed.","Mild temperatures suppressing load. Bearish across near months.","Demand index at seasonal high. Winter premium holding firm."],
+  curve:["Curve in contango — far months pricing long-run supply uncertainty.","Forward risk premium elevated. Far-month buyers paying a premium.","Backwardation in the forward curve — near tightness seen as temporary.","Inverted curve: market pricing current squeeze as short-lived.","Flat curve. Market seeking direction without clear catalyst.","Seasonal shape intact. Winter/summer differential holding £15–18.","Curve steepening at the back. Long-dated risk premium building.","Near/far spread compressing. Curve flattening on mixed data.","Calendar spreads narrowing. Market uncertainty around demand outlook.","Strong contango: patience on far months could reward well."],
+  context:["Open positions approaching delivery. Spot risk increasing for open months.","Early hedging advantage visible in near-month coverage.","Market offering entry points. Patience vs coverage — manage the balance.","Thin trading volumes. Range-bound curve expected short-term.","Pre-winter buying accelerating. Competition for fixed prices increasing.","Summer demand soft seasonally. Better entry points emerging.","No major events this month. Curve drifting on thin volumes.","Short-term volatility elevated. Day-ahead diverging from forwards.","Quiet macro backdrop. Focus shifts to seasonal demand patterns.","Event-risk elevated. Keep powder dry for sharp curve moves.","Position sizing matters. Don't over-commit ahead of key data releases.","Benchmark comparison improving for well-positioned portfolios."]
+};
+
+// ═══════════════════════════════════════════════════════════════
+// GAME STATE
+// ═══════════════════════════════════════════════════════════════
+let gs={};
+
+function makeDM(d){
+  return{id:d,label:dLbl(d),hedgedGWh:0,openGWh:10,hedgedPct:0,openPct:100,
+    avgHedgePrice:null,totalHedgeCost:0,cashoutPrice:null,status:'open',
+    lastUnwindPrice:null,lastUnwindPct:0,trades:[]};
+}
+
+function startGame(years){
+  document.getElementById('start-screen').style.display='none';
+  document.getElementById('game-screen').style.display='block';
+  initGame(years);
+}
+
+function backToStart(){
+  document.getElementById('end-screen').classList.remove('show');
+  document.getElementById('game-screen').style.display='none';
+  document.getElementById('start-screen').style.display='flex';
+}
+
+function initGame(years){
+  years=years||gs.gameYears||3;
+  const nm=years*12;
+  gs={
+    gameYears:years,numMonths:nm,turn:0,
+    dm:[],fc:{},priceHistory:{},
+    fundamentals:{},activeShocks:[],
+    nextEventIn:rnd(2,4),eventHistory:[],
+    currentEvent:null,isBreakdown:false,
+    breakdownTurns:new Set(),
+    traderTokens:years*2,tradeLog:[],
+    recentEventDir:0,viewYear:0,
+    selectedMonths:new Set(),
+    commLines:['','',''],lastCommTurn:-1,
+    prevCurve:{},baseLevel:85,futureShift:randn(0,3.5)
+  };
+  for(let d=0;d<nm;d++){
+    gs.dm.push(makeDM(d));
+    gs.priceHistory[d]=[];
+  }
+  gs.breakdownTurns=generateBreakdownTurns(years,nm);
+  generateCurve(0);
+  for(let d=0;d<nm;d++) gs.priceHistory[d].push(gs.fc[d]);
+  gs.fundamentals=genFunds(0);
+  updateComm();
+  addLog('Game started. Delivery: '+dLbl(0)+' → '+dLbl(nm-1)+'.','lev');
+  showTutorial();
+  renderAll();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// OPERATIONAL BREAKDOWN
+// ═══════════════════════════════════════════════════════════════
+function generateBreakdownTurns(years,nm){
+  const lastT=cashoutTurn(nm-1);
+  // Decide number of breakdowns based on game length
+  const r=Math.random();
+  let count=0;
+  if(years===1) count=r<0.40?1:0;
+  else if(years===2) count=r<0.30?0:r<0.70?1:2;
+  else count=r<0.10?0:r<0.45?1:r<0.75?2:3;
+  // Pick random turns (not first 2)
+  const pool=[];
+  for(let t=2;t<=lastT;t++) pool.push(t);
+  const chosen=new Set();
+  for(let i=0;i<count;i++){
+    if(!pool.length) break;
+    const idx=rnd(0,pool.length-1);
+    chosen.add(pool.splice(idx,1)[0]);
+  }
+  return chosen;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// FORWARD CURVE
+// ═══════════════════════════════════════════════════════════════
+function generateCurve(t){
+  for(let d=0;d<gs.numMonths;d++){
+    if(gs.dm[d].status==='cashed_out') continue;
+    const dist=fwdDist(t,d);
+    const seas=SEA_ADJ[dMI(d)];
+    const tp=85*0.003*Math.max(0,dist);
+    let shock=0;
+    for(const sh of gs.activeShocks){
+      const f=sh.remaining/sh.total;
+      shock+=dist<=3?sh.event.near*f:dist<=12?sh.event.mid*f:sh.event.far*f;
+    }
+    gs.fc[d]=Math.max(40,gs.baseLevel+seas+tp+shock);
+  }
+}
+
+function updateCurve(t){
+  // Consume pre-generated shift (trader sees this before it happens)
+  const shift=(gs.futureShift!==undefined)?gs.futureShift:randn(0,3.5);
+  gs.lastShift=shift;
+  // Accumulate into persistent base — no mean reversion, allows sustained trends
+  gs.baseLevel=clamp(gs.baseLevel+shift,45,300);
+  for(let d=0;d<gs.numMonths;d++){
+    if(gs.dm[d].status==='cashed_out') continue;
+    const dist=fwdDist(t,d);
+    const seas=SEA_ADJ[dMI(d)];
+    const tp=85*0.003*Math.max(0,dist);
+    // Near months get extra independent noise (higher short-term volatility)
+    const nearExtra=dist<3?randn(0,1.5):dist<12?randn(0,0.7):0;
+    let shock=0;
+    for(const sh of gs.activeShocks){
+      const f=sh.remaining/sh.total;
+      shock+=dist<=3?sh.event.near*f:dist<=12?sh.event.mid*f:sh.event.far*f;
+    }
+    gs.fc[d]=Math.max(40,gs.baseLevel+seas+tp+shock+nearExtra);
+  }
+  // Pre-generate NEXT turn's move — trader can reference this
+  gs.futureShift=randn(0,3.5);
+}
+
+function genFunds(t){
+  const mi=tMI(t);
+  const stoB=[75,60,35,45,55,65,72,78,88,92,85,80];
+  const wiB=[55,52,50,35,30,28,28,30,38,48,55,58];
+  const deB=[120,115,105,90,85,80,82,88,95,108,118,128];
+  return{
+    gasStorage:Math.round(clamp(stoB[mi]+randn(0,8),15,98)),
+    windGen:Math.round(clamp(wiB[mi]+randn(0,12),5,90)),
+    demand:Math.round(clamp(deB[mi]+randn(0,8),70,140)),
+    nuclear:Math.round(clamp(88+randn(0,7),55,100))
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// GAME FLOW
+// ═══════════════════════════════════════════════════════════════
+function startTurn(){
+  const t=gs.turn;
+  gs.currentEvent=null;
+  gs.isBreakdown=gs.breakdownTurns.has(t);
+  // Cashout
+  for(let d=0;d<gs.numMonths;d++){
+    if(cashoutTurn(d)===t&&gs.dm[d].status!=='cashed_out') cashoutMonth(d);
+  }
+  // Decay shocks
+  gs.activeShocks=gs.activeShocks.filter(sh=>{sh.remaining--;return sh.remaining>0;});
+  // Roll event
+  gs.nextEventIn--;
+  if(gs.nextEventIn<=0){fireEvent();gs.nextEventIn=rnd(2,4);}
+  // Update curve
+  updateCurve(t);
+  // Record prices
+  for(let d=0;d<gs.numMonths;d++){
+    if(gs.dm[d].status!=='cashed_out') gs.priceHistory[d].push(gs.fc[d]);
+  }
+  gs.fundamentals=genFunds(t);
+  updateComm();
+}
+
+function cashoutMonth(d){
+  const dm=gs.dm[d];
+  const spot=Math.max(30,(gs.fc[d]||85)+randn(0,5));
+  dm.cashoutPrice=spot;
+  if(dm.openGWh>0.01){
+    dm.totalHedgeCost+=spot*dm.openGWh;
+    addLog(`CASHOUT ${dm.label}: ${dm.openPct}% open → spot £${fmt(spot)}/MWh`,'lc');
+  }
+  if(dm.hedgedGWh>0.01) addLog(`CASHOUT ${dm.label}: ${dm.hedgedPct}% hedged @ avg £${fmt(dm.avgHedgePrice)}/MWh ✓`,'lc');
+  dm.status='cashed_out';dm.openGWh=0;dm.openPct=0;
+}
+
+function fireEvent(){
+  const avail=EVENTS.filter(e=>!gs.activeShocks.find(s=>s.event.id===e.id));
+  if(!avail.length) return;
+  const ev=avail[rnd(0,avail.length-1)];
+  gs.activeShocks.push({event:ev,remaining:ev.decay,total:ev.decay});
+  gs.eventHistory.push({event:ev,turn:gs.turn});
+  gs.currentEvent=ev;
+  gs.recentEventDir=ev.near>0?1:-1;
+  addLog(`EVENT: ${ev.headline}`,'lev');
+}
+
+function endTurn(){
+  // Save curve snapshot before update
+  const prevCurve={...gs.fc};
+  const prevCashedIds=new Set(gs.dm.filter(d=>d.status==='cashed_out').map(d=>d.id));
+  gs.turn++;
+  startTurn();
+  if(gs.dm.every(d=>d.status==='cashed_out')){
+    renderAll();
+    setTimeout(()=>showEndScreen(),700);
+    return;
+  }
+  renderAll();
+  showMarketSummary(prevCurve,prevCashedIds);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MARKET SUMMARY
+// ═══════════════════════════════════════════════════════════════
+function showMarketSummary(prevCurve,prevCashedIds){
+  const openDms=gs.dm.filter(d=>d.status!=='cashed_out');
+  function secInfo(dms,name){
+    if(!dms.length) return null;
+    const hasOld=dms.filter(d=>prevCurve[d.id]!=null);
+    if(!hasOld.length) return null;
+    const oldAvg=hasOld.reduce((s,d)=>s+prevCurve[d.id],0)/hasOld.length;
+    const newAvg=hasOld.reduce((s,d)=>s+gs.fc[d.id],0)/hasOld.length;
+    return{name,delta:newAvg-oldAvg};
+  }
+  const winDms=openDms.filter(d=>{const mi=dMI(d.id);return mi>=9||mi<=2;});
+  const sections=[
+    secInfo(openDms.slice(0,3),'Near term (next 3 months)'),
+    secInfo(winDms.slice(0,6),'Winter months'),
+    secInfo(openDms.slice(12),'Far curve (> 12 months)')
+  ].filter(Boolean);
+  const newlyCashed=gs.dm.filter(d=>d.status==='cashed_out'&&!prevCashedIds.has(d.id));
+  let html='';
+  for(const s of sections){
+    const risen=s.delta>0.5,fallen=s.delta<-0.5;
+    const badge=risen?'ms-risen':fallen?'ms-fallen':'ms-flat';
+    const label=risen?`↑ RISEN +£${fmt(s.delta)}/MWh`:fallen?`↓ FALLEN £${fmt(s.delta)}/MWh`:'→ FLAT';
+    const impact=risen?'Costs more to hedge now — bullish for suppliers':fallen?'Cheaper to hedge — good news for buyers':'No significant move this turn';
+    html+=`<div class="ms-row"><span class="ms-badge ${badge}">${label}</span><div><div class="ms-detail">${s.name}</div><div class="ms-sub">${impact}</div></div></div>`;
+  }
+  if(newlyCashed.length){
+    html+=`<div style="margin-top:10px;font-size:10px;font-weight:700;color:var(--amber);letter-spacing:.5px;text-transform:uppercase">Spot Cashouts This Turn</div>`;
+    newlyCashed.forEach(dm=>{
+      const d=dm.avgHedgePrice?(dm.cashoutPrice-dm.avgHedgePrice>=0?'+':'')+'£'+fmt(dm.cashoutPrice-dm.avgHedgePrice)+'/MWh vs your hedge':'(fully open)';
+      html+=`<div style="font-size:12px;color:var(--tdim);padding:3px 0">• <span style="color:var(--text)">${dm.label}</span>: spot settled at <strong style="color:#fff;font-family:monospace">£${fmt(dm.cashoutPrice)}/MWh</strong> <span style="color:var(--tdim)">${d}</span></div>`;
+    });
+  }
+  if(gs.currentEvent){
+    html+=`<div style="margin-top:10px;background:var(--adim);color:#000;padding:7px 10px;border-radius:4px;font-size:12px"><strong>⚡ ${gs.currentEvent.headline}</strong><br><span style="opacity:.85">${gs.currentEvent.flavour}</span></div>`;
+  }
+  if(gs.isBreakdown){
+    html+=`<div style="margin-top:10px;background:#6b0000;color:#ffcccc;padding:7px 10px;border-radius:4px;font-size:12px"><strong>⚠ OPERATIONAL BREAKDOWN</strong><br>The CFO is on holiday — no trades this month.</div>`;
+  }
+  document.getElementById('ms-content').innerHTML=html;
+  document.getElementById('ms-modal').classList.add('show');
+}
+
+function closeSummary(){
+  document.getElementById('ms-modal').classList.remove('show');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TRADE FUNCTIONS
+// ═══════════════════════════════════════════════════════════════
+function doBuy(){
+  if(gs.isBreakdown){setMsg('Operational breakdown — no trades authorised this month');return;}
+  const pct=parseInt(document.getElementById('pct-sel').value)||10;
+  const gwh=pct/10;
+  const sel=[...gs.selectedMonths];
+  if(!sel.length){setMsg('Select months on the chart first');return;}
+  for(const d of sel){
+    const dm=gs.dm[d];
+    if(dm.status==='cashed_out'){setMsg(`${dm.label} has already cashed out`);return;}
+    if(gwh>dm.openGWh+0.01){setMsg(`${dm.label}: only ${dm.openPct}% available (trying to buy ${pct}%)`);return;}
+  }
+  for(const d of sel){
+    const dm=gs.dm[d];const price=gs.fc[d];
+    let pnlNote='';
+    if(dm.lastUnwindPrice!==null){
+      const pnl=dm.lastUnwindPrice-price;
+      addLog(`  ↳ Round-trip ${dm.label}: sold £${fmt(dm.lastUnwindPrice)}, bought back £${fmt(price)} → ${pnl>=0?'saved':'cost'} £${fmt(Math.abs(pnl))}/MWh`,'lpnl');
+      dm.lastUnwindPrice=null;dm.lastUnwindPct=0;
+    }
+    dm.hedgedGWh+=gwh;dm.openGWh=10-dm.hedgedGWh;
+    dm.hedgedPct=Math.round(dm.hedgedGWh*10);dm.openPct=100-dm.hedgedPct;
+    dm.totalHedgeCost+=price*gwh;
+    dm.avgHedgePrice=dm.totalHedgeCost/dm.hedgedGWh;
+    dm.status=dm.openGWh<0.01?'full':dm.hedgedGWh>0.01?'partial':'open';
+    dm.trades.push({type:'buy',pct,price,turn:gs.turn});
+    addLog(`BUY ${pct}% ${dm.label} @ £${fmt(price)}/MWh`,'lb');
+  }
+  setMsg('');gs.selectedMonths.clear();renderAll();
+}
+
+function doSell(){
+  if(gs.isBreakdown){setMsg('Operational breakdown — no trades authorised this month');return;}
+  const pct=parseInt(document.getElementById('pct-sel').value)||10;
+  const gwh=pct/10;
+  const sel=[...gs.selectedMonths];
+  if(!sel.length){setMsg('Select months on the chart first');return;}
+  for(const d of sel){
+    const dm=gs.dm[d];
+    if(dm.status==='cashed_out'){setMsg(`${dm.label} has already cashed out`);return;}
+    if(gwh>dm.hedgedGWh+0.01){setMsg(`${dm.label}: only ${dm.hedgedPct}% hedged (trying to sell ${pct}%)`);return;}
+  }
+  for(const d of sel){
+    const dm=gs.dm[d];const price=gs.fc[d];const orig=dm.avgHedgePrice;
+    dm.lastUnwindPrice=price;dm.lastUnwindPct=pct;
+    dm.hedgedGWh-=gwh;dm.openGWh=10-dm.hedgedGWh;
+    dm.hedgedPct=Math.round(dm.hedgedGWh*10);dm.openPct=100-dm.hedgedPct;
+    dm.totalHedgeCost-=orig*gwh;
+    dm.avgHedgePrice=dm.hedgedGWh>0.01?dm.totalHedgeCost/dm.hedgedGWh:null;
+    dm.status=dm.hedgedGWh<0.01?'open':dm.openGWh<0.01?'full':'partial';
+    dm.trades.push({type:'sell',pct,price,turn:gs.turn});
+    const pnlPer=price-orig;
+    addLog(`SELL ${pct}% ${dm.label} @ £${fmt(price)}/MWh (was £${fmt(orig)}) | ${pnlPer>=0?'+':''}£${fmt(pnlPer)}/MWh P&L`,'ls');
+  }
+  setMsg('');gs.selectedMonths.clear();renderAll();
+}
+
+function barClick(d){
+  if(gs.dm[d].status==='cashed_out') return;
+  if(gs.selectedMonths.has(d)) gs.selectedMonths.delete(d);
+  else gs.selectedMonths.add(d);
+  renderBarChart();renderTradeControls();
+}
+
+function setMsg(m){document.getElementById('trade-msg').textContent=m}
+function addLog(t,cls){
+  const el=document.createElement('div');
+  el.className='le '+cls;el.textContent=`T${gs.turn+1}: ${t}`;
+  const li=document.getElementById('log-inner');li.insertBefore(el,li.firstChild);
+}
+function marketAvg(d){const h=gs.priceHistory[d];return h&&h.length?h.reduce((s,v)=>s+v,0)/h.length:null;}
+
+// ═══════════════════════════════════════════════════════════════
+// TRADER
+// ═══════════════════════════════════════════════════════════════
+function showTrader(){
+  if(gs.traderTokens<=0) return;
+  gs.traderTokens--;
+  document.getElementById('tok-count').textContent=gs.traderTokens;
+  document.getElementById('btn-trader').disabled=gs.traderTokens<=0;
+  document.getElementById('trader-msg').textContent=pickTrader();
+  document.getElementById('trader-modal').classList.add('show');
+}
+function closeModal(id){document.getElementById(id).classList.remove('show')}
+
+function pickTrader(){
+  const f=gs.futureShift||0;
+  const t=gs.turn,nm=gs.numMonths;
+  const openDms=gs.dm.filter(d=>d.status!=='cashed_out');
+  const tot=openDms.reduce((s,d)=>s+d.hedgedGWh,0);
+  const ratio=openDms.length>0?tot/(openDms.length*10):1;
+  const tLeft=cashoutTurn(nm-1)-t;
+
+  // Directional call: trader always knows the next market move
+  let dir='';
+  if(f>4.5)       dir="Off the record — the market is about to push hard higher when you end this turn. Significant buying pressure coming in. Get your cover on before it moves.";
+  else if(f>2)    dir="I'm hearing upward pressure building. Expect prices to nudge higher after you end this turn — if you've got open near months, now's a good moment to act.";
+  else if(f>0.5)  dir="Minor upward drift expected next turn — nothing dramatic. Worth covering any open months where you like the level.";
+  else if(f<-4.5) dir="Big move lower incoming — heavy selling coming into the market. I'd hold off buying this turn and pick up the cheaper levels when they appear.";
+  else if(f<-2)   dir="Sellers building up. Prices should ease off when you end this turn. If you can afford to wait one more turn, you might get a better entry.";
+  else if(f<-0.5) dir="Slight softness expected next turn. Lean patient if you're on the fence about a month.";
+  else            dir="Flat move expected when you end this turn — no strong signal from the desk. Good time to make portfolio decisions without worrying about timing.";
+
+  // Position context suffix
+  let sfx='';
+  if(ratio<0.35&&tLeft<6) sfx=" That said — you're very short with few turns left. Spot risk may outweigh any saving from waiting. Cover up.";
+  else if(ratio<0.35&&tLeft<14) sfx=" You're behind on hedging. Use any dips to build positions — don't wait for perfect.";
+  else if(ratio>0.8&&f>2)  sfx=" You're well covered though — no need to panic-buy into this rise.";
+  else if(tLeft<5)          sfx=" Final stretch — open months will hit spot soon. If you're uncomfortable, pay up and fix them.";
+
+  return dir+sfx;
+}
+
+function updateComm(){
+  if(gs.lastCommTurn===gs.turn) return;
+  gs.lastCommTurn=gs.turn;
+  gs.commLines[0]=CL.fund[rnd(0,CL.fund.length-1)];
+  gs.commLines[1]=CL.curve[rnd(0,CL.curve.length-1)];
+  gs.commLines[2]=CL.context[rnd(0,CL.context.length-1)];
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════════
+function renderAll(){
+  renderHeader();
+  renderBanners();
+  renderCurveChart();
+  renderCommPanel();
+  renderPosBar();
+  renderYearToggle();
+  renderBarChart();
+  renderTradeControls();
+}
+
+function renderHeader(){
+  document.getElementById('hd-month-big').textContent=tLblFull(gs.turn);
+  const lastT=cashoutTurn(gs.numMonths-1);
+  document.getElementById('prog-fill').style.width=Math.min(100,gs.turn/lastT*100)+'%';
+  document.getElementById('prog-text').textContent=`Turn ${gs.turn+1} of ${lastT+1}`;
+  document.getElementById('tok-count').textContent=gs.traderTokens;
+  document.getElementById('btn-trader').disabled=gs.traderTokens<=0;
+}
+
+function renderBanners(){
+  // Event banner
+  const eb=document.getElementById('event-banner');
+  if(gs.currentEvent){
+    document.getElementById('eb-head').textContent=gs.currentEvent.headline;
+    document.getElementById('eb-flav').textContent=gs.currentEvent.flavour;
+    document.getElementById('eb-turn').textContent=tLblFull(gs.turn);
+    eb.classList.add('show');
+  } else eb.classList.remove('show');
+  // Breakdown banner
+  const bb=document.getElementById('breakdown-banner');
+  if(gs.isBreakdown) bb.classList.add('show'); else bb.classList.remove('show');
+  // Disable/enable trade buttons
+  const dis=gs.isBreakdown;
+  document.getElementById('btn-buy').disabled=dis;
+  document.getElementById('btn-sell').disabled=dis;
+}
+
+function renderCurveChart(){
+  const svg=document.getElementById('curve-svg');
+  const W=560,H=88,PL=4,PT=5,PB=8,IW=W-PL*2,IH=H-PT-PB;
+  const nm=gs.numMonths;
+  const actP=gs.dm.filter(d=>d.status!=='cashed_out').map(d=>gs.fc[d.id]);
+  const bPs=gs.dm.map(d=>marketAvg(d.id)).filter(v=>v!==null);
+  const all=[...actP,...bPs];
+  if(!all.length){svg.innerHTML='';return;}
+  const minP=Math.min(...all)-3,maxP=Math.max(...all)+3;
+  function xp(d){return PL+(d+.5)/nm*IW}
+  function yp(p){return PT+(maxP-p)/(maxP-minP)*IH}
+  let h='';
+  const cc=gs.dm.filter(d=>d.status==='cashed_out').length;
+  if(cc>0) h+=`<rect x="${PL}" y="${PT}" width="${cc/nm*IW}" height="${IH}" fill="#111"/>`;
+  let bp='';
+  for(let d=0;d<nm;d++){const ma=marketAvg(d);if(ma)bp+=`${xp(d)},${yp(ma)} `;}
+  if(bp) h+=`<polyline points="${bp.trim()}" fill="none" stroke="#b07d05" stroke-width="1" stroke-dasharray="3,3"/>`;
+  let cp='';
+  for(let d=0;d<nm;d++){if(gs.dm[d].status!=='cashed_out') cp+=`${xp(d)},${yp(gs.fc[d])} `;}
+  if(cp) h+=`<polyline points="${cp.trim()}" fill="none" stroke="#e3a008" stroke-width="1.5"/>`;
+  for(let d=0;d<nm;d++){
+    const dm=gs.dm[d];
+    if(dm.status==='cashed_out'&&dm.cashoutPrice)
+      h+=`<circle cx="${xp(d)}" cy="${yp(dm.cashoutPrice)}" r="2" fill="#666"/>`;
+    if(dm.hedgedGWh>0.01&&dm.avgHedgePrice&&dm.status!=='cashed_out'){
+      const ma=marketAvg(d)||dm.avgHedgePrice;
+      h+=`<circle cx="${xp(d)}" cy="${yp(dm.avgHedgePrice)}" r="3" fill="${dm.avgHedgePrice<=ma?'#3fb950':'#f85149'}" opacity=".85"/>`;
+    }
+  }
+  h+=`<text x="${PL+1}" y="${PT+7}" fill="#555" font-size="7" font-family="monospace">£${Math.round(maxP)}</text>`;
+  h+=`<text x="${PL+1}" y="${H-PB-1}" fill="#555" font-size="7" font-family="monospace">£${Math.round(minP)}</text>`;
+  svg.innerHTML=h;
+}
+
+function renderCommPanel(){
+  const f=gs.fundamentals;
+  document.getElementById('funds-grid').innerHTML=`
+    <div class="fi"><span class="fi-l">Gas Storage </span><span class="fi-v">${f.gasStorage}%</span></div>
+    <div class="fi"><span class="fi-l">Wind Gen </span><span class="fi-v">${f.windGen}%</span></div>
+    <div class="fi"><span class="fi-l">Demand Index </span><span class="fi-v">${f.demand}</span></div>
+    <div class="fi"><span class="fi-l">Nuclear </span><span class="fi-v">${f.nuclear}%</span></div>`;
+  const od=gs.dm.filter(d=>d.status!=='cashed_out');
+  function mood(dms){
+    if(!dms.length) return{t:'N/A',c:'mn'};
+    const f2=gs.fundamentals;
+    if(gs.recentEventDir===1&&f2.gasStorage<50) return{t:'BULLISH',c:'mr'};
+    if(gs.recentEventDir===-1&&f2.gasStorage>75) return{t:'BEARISH',c:'mb'};
+    if(f2.gasStorage<40||f2.demand>115) return{t:'BULLISH',c:'mr'};
+    if(f2.gasStorage>80&&f2.windGen>60) return{t:'BEARISH',c:'mb'};
+    return{t:'NEUTRAL',c:'mn'};
+  }
+  const wdms=od.filter(d=>{const mi=dMI(d.id);return mi>=9||mi<=2;});
+  const nm=mood(od.slice(0,3)),wm=mood(wdms),fm=mood(od.slice(12));
+  document.getElementById('mood-row').innerHTML=`
+    <span class="mtag ${nm.c}">Near: ${nm.t}</span>
+    <span class="mtag ${wm.c}">Winter: ${wm.t}</span>
+    <span class="mtag ${fm.c}">Far: ${fm.t}</span>`;
+  document.getElementById('comm-lines').innerHTML=gs.commLines.map(l=>`<div class="cline">${l}</div>`).join('');
+}
+
+function renderPosBar(){
+  const od=gs.dm.filter(d=>d.status!=='cashed_out');
+  // Portfolio price: hedged at locked price + open volume at current forward
+  let portCost=0;
+  od.forEach(dm=>{portCost+=dm.totalHedgeCost+dm.openGWh*gs.fc[dm.id];});
+  const portVol=od.length*10;
+  const portAvg=portVol>0?portCost/portVol:null;
+  // Market benchmark: running average per month
+  const mAvgs=od.map(d=>marketAvg(d.id)).filter(v=>v!==null);
+  const mAvg=mAvgs.length?mAvgs.reduce((s,v)=>s+v,0)/mAvgs.length:null;
+  document.getElementById('ps-avg').textContent=portAvg?`£${fmt(portAvg)}/MWh`:'—';
+  document.getElementById('ps-bench').textContent=mAvg?`£${fmt(mAvg)}/MWh`:'—';
+  if(portAvg&&mAvg){
+    const vsM=portAvg-mAvg;
+    const vEl=document.getElementById('ps-save');
+    const sign=vsM<0?'-':vsM>0?'+':'';
+    vEl.textContent=sign+'£'+Math.abs(vsM).toFixed(2)+'/MWh';
+    vEl.className='ps-v '+(vsM<=0?'g':'r');
+    const totalImpact=(mAvg-portAvg)*od.length*10000;
+    const iEl=document.getElementById('ps-impact');
+    iEl.textContent=fmtK(totalImpact);
+    iEl.className='ps-v '+(totalImpact>=0?'g':'r');
+  } else {
+    document.getElementById('ps-save').textContent='—';
+    document.getElementById('ps-save').className='ps-v';
+    document.getElementById('ps-impact').textContent='—';
+    document.getElementById('ps-impact').className='ps-v';
+  }
+}
+
+function renderYearToggle(){
+  let h='';
+  for(let y=0;y<gs.gameYears;y++){
+    h+=`<button class="ytbtn${gs.viewYear===y?' active':''}" onclick="setViewYear(${y})">Year ${y+1}</button>`;
+  }
+  document.getElementById('ytbtn-wrap').innerHTML=h;
+}
+
+function setViewYear(y){
+  gs.viewYear=y;gs.selectedMonths.clear();
+  renderYearToggle();renderBarChart();renderTradeControls();
+}
+
+// ─── BAR CHART (Option C colours — Warm Dark) ───────────────────
+function renderBarChart(){
+  const wrap=document.getElementById('bar-svg-wrap');
+  const W=wrap.getBoundingClientRect().width||700;
+  const H=210;
+  const svg=document.getElementById('bar-svg');
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.setAttribute('width',W);
+  svg.setAttribute('height',H);
+
+  const slotW=W/12;
+  const barPad=Math.max(3,slotW*0.1);
+  const barW=slotW-barPad*2;
+  const barTop=15,barH=130,labY=158,avgLabY=170,mktLabY=183,impLabY=196;
+  const fs=Math.max(7,Math.min(10,slotW/8));
+  const fsMon=Math.max(8,Math.min(11,slotW/7));
+
+  let h='';
+  for(let i=0;i<12;i++){
+    const d=gs.viewYear*12+i;
+    const x=i*slotW+barPad;
+    if(d>=gs.numMonths){
+      h+=`<rect x="${x}" y="${barTop}" width="${barW}" height="${barH}" fill="#0a0a0a" rx="2"/>`;
+      h+=`<text x="${x+barW/2}" y="${labY}" fill="#333" font-size="${fs}" text-anchor="middle" font-family="sans-serif">${MN[i]}</text>`;
+      continue;
+    }
+    const dm=gs.dm[d];
+    const isCashed=dm.status==='cashed_out';
+    const isSel=gs.selectedMonths.has(d);
+    const ma=marketAvg(d);
+    const fillH=Math.max(0,Math.round(barH*dm.hedgedPct/100));
+    const fillTop=barTop+barH-fillH;
+
+    // Bar background
+    h+=`<rect x="${x}" y="${barTop}" width="${barW}" height="${barH}" fill="${isCashed?'#111111':'#1a1a1a'}" rx="2"/>`;
+
+    // Filled bar
+    if(fillH>0){
+      const aboveMkt=dm.avgHedgePrice&&ma&&dm.avgHedgePrice>ma;
+      const fillCol=isCashed?'#444':aboveMkt?'#ef5350':'#26a69a';
+      h+=`<rect x="${x}" y="${fillTop}" width="${barW}" height="${fillH}" fill="${fillCol}" rx="2" opacity="${isCashed?.5:.9}"/>`;
+      // Price inside bar
+      if(fillH>14&&dm.avgHedgePrice){
+        const ly=Math.max(fillTop+11,fillTop+fillH-3);
+        h+=`<text x="${x+barW/2}" y="${ly}" fill="#000" font-size="${fs}" text-anchor="middle" font-family="monospace" font-weight="700">£${fmt(dm.avgHedgePrice)}</text>`;
+      }
+    }
+
+    // Open % label inside empty space
+    if(dm.hedgedPct>0&&dm.hedgedPct<100&&!isCashed){
+      h+=`<text x="${x+barW/2}" y="${fillTop>barTop+12?fillTop-3:barTop+10}" fill="#888" font-size="${Math.max(6,fs-1)}" text-anchor="middle" font-family="sans-serif">${dm.openPct}% open</text>`;
+    }
+    // 100% open label
+    if(dm.hedgedPct===0&&!isCashed){
+      h+=`<text x="${x+barW/2}" y="${barTop+barH/2+4}" fill="#555" font-size="${fs}" text-anchor="middle" font-family="sans-serif">OPEN</text>`;
+    }
+
+    // Selection highlight
+    if(isSel) h+=`<rect x="${x-1}" y="${barTop-1}" width="${barW+2}" height="${barH+2}" fill="none" stroke="#ffffff" stroke-width="2" rx="3"/>`;
+
+    // Month label
+    const mlabel=isCashed?MN[dMI(d)]+'✓':MN[dMI(d)];
+    h+=`<text x="${x+barW/2}" y="${labY}" fill="${isCashed?'#555':'#f5f5f5'}" font-size="${fsMon}" text-anchor="middle" font-family="sans-serif" font-weight="600">${mlabel}</text>`;
+
+    if(isCashed){
+      // Cashed months: spot cashout at avgLabY, realized delta at mktLabY
+      if(dm.cashoutPrice){
+        h+=`<text x="${x+barW/2}" y="${avgLabY}" fill="#666" font-size="${fs}" text-anchor="middle" font-family="monospace">sp £${fmt(dm.cashoutPrice)}</text>`;
+        if(ma!==null){
+          const realEff=dm.totalHedgeCost/10;
+          const realDelta=ma-realEff;
+          const dK=Math.round(realDelta*10000/1000);
+          const dCol=realDelta>=0?'#26a69a':'#ef5350';
+          h+=`<text x="${x+barW/2}" y="${mktLabY}" fill="${dCol}" font-size="${Math.max(6,fs-1)}" text-anchor="middle" font-family="monospace">${dK>=0?'+':''}£${Math.abs(dK)}k</text>`;
+        }
+      }
+    } else {
+      // Active months: market avg at avgLabY, impact vs market at mktLabY
+      if(ma!==null){
+        h+=`<text x="${x+barW/2}" y="${avgLabY}" fill="#ffca28" font-size="${fs}" text-anchor="middle" font-family="monospace">£${fmt(ma)}</text>`;
+      }
+      if(dm.avgHedgePrice&&ma){
+        const impPerMWh=ma-dm.avgHedgePrice;
+        const impK=Math.round(impPerMWh*10000/1000);
+        const impCol=impPerMWh>=0?'#26a69a':'#ef5350';
+        h+=`<text x="${x+barW/2}" y="${mktLabY}" fill="${impCol}" font-size="${Math.max(6,fs-1)}" text-anchor="middle" font-family="monospace">${impK>=0?'+':''}£${Math.abs(impK)}k</text>`;
+      }
+    }
+
+    // Transparent click catcher
+    if(!isCashed){
+      h+=`<rect x="${x}" y="${barTop}" width="${barW}" height="${barH+40}" fill="transparent" onclick="barClick(${d})" style="cursor:pointer"/>`;
+    }
+  }
+
+  // Legend
+  h+=`<text x="4" y="${H-1}" fill="#555" font-size="7" font-family="sans-serif">■ Green bar = below market avg  ■ Red bar = above market avg  ■ Orange label = market avg  ■ ±£Xk = monthly £ impact vs market</text>`;
+  svg.innerHTML=h;
+}
+
+function renderTradeControls(){
+  const sel=[...gs.selectedMonths];
+  const si=document.getElementById('sel-info');
+  if(!sel.length){
+    si.innerHTML=gs.isBreakdown?'<span style="color:var(--red)">Trades locked — CFO on holiday</span>':'Click bars to select months, then BUY or SELL';
+  } else {
+    const labels=sel.map(d=>gs.dm[d].label).join(', ');
+    const prices=sel.map(d=>`£${fmt(gs.fc[d.id]||gs.fc[d])}`).join(', ');
+    si.innerHTML=`<span>${sel.length} selected: ${labels}</span><br><small style="color:var(--tdim)">Current prices: ${prices}</small>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// END SCREEN
+// ═══════════════════════════════════════════════════════════════
+function showEndScreen(){
+  gs.dm.forEach(dm=>{
+    if(dm.cashoutPrice==null){dm.cashoutPrice=gs.fc[dm.id]||85;dm.totalHedgeCost+=dm.cashoutPrice*dm.openGWh;}
+  });
+  const nm=gs.numMonths;
+  const totalCost=gs.dm.reduce((s,d)=>s+d.totalHedgeCost,0);
+  const playerAvg=totalCost/(nm*10);
+  const mAvgs=gs.dm.map(d=>marketAvg(d.id)).filter(v=>v!==null);
+  const benchAvg=mAvgs.length?mAvgs.reduce((s,v)=>s+v,0)/mAvgs.length:85;
+  const saving=benchAvg-playerAvg; // positive = player beat market
+  const totalImpact=saving*nm*10000;
+
+  const grades=[{min:5,l:'Master Buyer',c:'#3fb950'},{min:2,l:'Sharp Procurement',c:'#3fb950'},{min:0,l:'Market Tracker',c:'#e3a008'},{min:-2,l:'Needs Work',c:'#f85149'},{min:-999,l:'Blown the Budget',c:'#f85149'}];
+  const grade=grades.find(g=>saving>=g.min)||grades[grades.length-1];
+
+  document.getElementById('end-headline').innerHTML=
+    `You achieved <strong>£${fmt(playerAvg)}/MWh</strong> vs market average <strong>£${fmt(benchAvg)}/MWh</strong> &mdash;
+     <span style="color:${saving>=0?'#3fb950':'#f85149'}">${saving>=0?'saving':'costing'} £${fmt(Math.abs(saving))}/MWh (${fmtK(totalImpact)} total across ${nm*10}GWh)</span>`;
+  const gEl=document.getElementById('end-grade');
+  gEl.textContent=grade.l;gEl.style.color=grade.c;
+
+  // Chart
+  const svg=document.getElementById('end-chart');
+  const W=720,H=180;
+  const allP=gs.dm.map(d=>d.totalHedgeCost/10).concat(mAvgs);
+  if(!allP.length){svg.innerHTML='';return;}
+  const minP=Math.min(...allP)-3,maxP=Math.max(...allP)+3;
+  const yc=p=>10+(maxP-p)/(maxP-minP)*150;
+  const bw=Math.floor(W/nm)-1;
+  let ch=`<line x1="0" y1="${yc(benchAvg)}" x2="${W}" y2="${yc(benchAvg)}" stroke="#b07d05" stroke-width="1" stroke-dasharray="4,3"/>`;
+  ch+=`<text x="${W-4}" y="${yc(benchAvg)-3}" fill="#b07d05" font-size="8" text-anchor="end">Mkt avg £${fmt(benchAvg)}</text>`;
+  gs.dm.forEach((dm,i)=>{
+    const x=i*(bw+1),ep=dm.totalHedgeCost/10;
+    const ma=marketAvg(dm.id)||benchAvg;
+    ch+=`<rect x="${x}" y="${yc(ep)}" width="${bw}" height="${H-5-yc(ep)}" fill="${ep<=ma?'#26a69a':'#ef5350'}" opacity=".8"/>`;
+    ch+=`<line x1="${x}" y1="${yc(ma)}" x2="${x+bw}" y2="${yc(ma)}" stroke="#ff9500" stroke-width="1"/>`;
+  });
+  svg.innerHTML=ch;
+
+  let buyV=0,sellV=0;
+  gs.dm.forEach(dm=>dm.trades.forEach(tr=>{if(tr.type==='buy') buyV+=tr.pct; else sellV+=tr.pct;}));
+  document.getElementById('end-strategy').innerHTML=`
+    <div class="di">Total buy trades: <span>${buyV}% volume</span></div>
+    <div class="di">Total sell (unwind) trades: <span>${sellV}% volume</span></div>
+    <div class="di">Operational breakdowns hit: <span>${gs.breakdownTurns.size} turn(s)</span></div>`;
+
+  const decs=gs.dm.map(dm=>{
+    const ep=dm.totalHedgeCost/10;
+    const ma=marketAvg(dm.id)||benchAvg;
+    return{label:dm.label,ep,ma,delta:ma-ep};
+  }).sort((a,b)=>b.delta-a.delta);
+  let decH='<div style="color:#26a69a;font-size:10px;margin-bottom:4px;font-weight:700">BEST — MOST SAVED vs MARKET</div>';
+  decs.slice(0,3).forEach(d=>decH+=`<div class="di">${d.label}: £${fmt(d.ep)} vs mkt £${fmt(d.ma)} — <span style="color:${d.delta>=0?'#26a69a':'#ef5350'}">${d.delta>=0?'saved':'cost'} £${fmt(Math.abs(d.delta))}/MWh</span></div>`);
+  decH+='<div style="color:#ef5350;font-size:10px;margin:8px 0 4px;font-weight:700">WORST — MOST EXPENSIVE vs MARKET</div>';
+  decs.slice(-3).reverse().forEach(d=>decH+=`<div class="di">${d.label}: £${fmt(d.ep)} vs mkt £${fmt(d.ma)} — <span style="color:${d.delta>=0?'#26a69a':'#ef5350'}">${d.delta>=0?'saved':'cost'} £${fmt(Math.abs(d.delta))}/MWh</span></div>`);
+  document.getElementById('end-decisions').innerHTML=decH;
+
+  let evH='';
+  gs.eventHistory.slice(0,6).forEach(eh=>{
+    const col=eh.event.near>0?'var(--red)':'var(--green)';
+    evH+=`<div class="di"><span style="color:${col}">${eh.event.near>0?'↑':'↓'} ${eh.event.headline}</span> <span>(Turn ${eh.turn+1})</span></div>`;
+  });
+  document.getElementById('end-events').innerHTML=evH||'<div class="di">No major events fired.</div>';
+  document.getElementById('end-screen').classList.add('show');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TUTORIAL (6 steps including Trader)
+// ═══════════════════════════════════════════════════════════════
+const TUT=[
+  {title:'Step 1 — Your Delivery Months',body:'The bar chart shows all your delivery months. Each bar fills as you hedge. Click bars to select them, then choose a percentage and click BUY.',anchor:'chart-section'},
+  {title:'Step 2 — Current Trading Month',body:'The large month name at the top is your current trading turn. Jan–Mar are Year 0 (pre-game setup). April Year 1 is the first delivery month — you have 3 turns to hedge it before it cashes out at spot.',anchor:'hd-month'},
+  {title:'Step 3 — Market Commentary',body:'The commentary panel shows four market fundamentals: Gas Storage % (low = bullish, high = bearish), Wind Gen % (high wind depresses prices by displacing gas plant), Demand Index (above 100 = tight system, upward pressure), Nuclear % (high availability = bearish). Mood tags summarise near-term, winter and far-curve sentiment. Watch these to anticipate where the curve is heading.',anchor:'main-grid'},
+  {title:'Step 4 — The Market Average Benchmark',body:'The warm yellow price below each bar is the running market average for that month — the average of every forward price shown since the game started. Your goal: build a portfolio price BELOW this average.',anchor:'chart-section'},
+  {title:'Step 5 — Cashout & Spot Risk',body:'When a delivery month arrives it cashes out at the volatile spot price. Any unhedged volume is bought at spot — protect yourself with forward hedges before then.',anchor:'main-grid'},
+  {title:'Step 6 — The Trader',body:'You have trader credits to speak to a True Group trader for their expert opinion. Use them wisely.',anchor:'trade-controls'},
+  {title:'Step 7 — Sell & Re-buy',body:'You can SELL hedged positions if the market drops after you bought. Your P&L on the round-trip is shown in the trade log.',anchor:'chart-section'}
+];
+let tutStep=-1;
+function showTutorial(){tutStep=0;showTutStep();}
+function showTutStep(){
+  if(tutStep<0||tutStep>=TUT.length){hideTutorial();return;}
+  const s=TUT[tutStep];
+  document.getElementById('tut-title').textContent=s.title;
+  document.getElementById('tut-body').textContent=s.body;
+  document.getElementById('tut-prog').textContent=`${tutStep+1}/${TUT.length}`;
+  document.getElementById('tut-next').textContent=tutStep===TUT.length-1?'Start →':'Next →';
+  const box=document.getElementById('tut-box');
+  box.style.display='block';
+  const anchor=document.getElementById(s.anchor);
+  if(anchor){
+    const r=anchor.getBoundingClientRect();
+    box.style.top=Math.min(window.innerHeight-200,r.bottom+8)+'px';
+    box.style.left=Math.min(window.innerWidth-300,Math.max(10,r.left))+'px';
+  } else {box.style.top='80px';box.style.left='20px';}
+}
+function tutNext(){tutStep++;showTutStep();}
+function tutSkip(){hideTutorial();}
+function hideTutorial(){document.getElementById('tut-box').style.display='none';tutStep=-1;}
+
+// Resize listener for dynamic bar chart
+window.addEventListener('resize',()=>{if(gs.dm&&gs.dm.length) renderBarChart();});
+</script>
+</body>
+</html>

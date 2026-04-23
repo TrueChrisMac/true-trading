@@ -4,128 +4,144 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>True Trading</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--amber:#e3a008;--adim:#b07d05;--green:#3fb950;--red:#f85149;--text:#c9d1d9;--tdim:#8b949e;--bdr:#30363d}
-body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;min-height:100vh}
+:root{
+  --bg:#F4F6F8;--surface:#FFFFFF;--black:#000000;--ink:#2C3E50;--muted:#5A6A7A;--hairline:#D0D8E0;
+  --cyan:#00B0F0;--good:#27AE60;--warn:#F39C13;--danger:#E74C3B;
+  --good-wash:#E8F8F5;--warn-wash:#FEF9E8;--danger-wash:#FFF2F2;
+  --elev-1:0 1px 2px rgba(0,0,0,.04),0 2px 6px rgba(0,0,0,.04);
+  --elev-2:0 4px 16px rgba(0,0,0,.06);
+  --radius-card:20px;--radius-pill:999px;
+}
+body{background:var(--bg);color:var(--ink);font-family:'Poppins',-apple-system,'Segoe UI',sans-serif;font-size:13px;min-height:100vh;-webkit-font-smoothing:antialiased}
 
-/* START */
-#start-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;text-align:center}
-#start-screen h1{font-size:42px;font-weight:900;color:var(--amber);letter-spacing:4px;margin-bottom:8px}
-.start-sub{font-size:16px;color:var(--tdim);margin-bottom:40px;max-width:500px;line-height:1.6}
-.year-cards{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
-.year-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:10px;padding:24px 32px;cursor:pointer;transition:border-color .2s,transform .2s;min-width:160px}
-.year-card:hover{border-color:var(--amber);transform:translateY(-3px)}
-.year-card h2{font-size:28px;font-weight:700;color:var(--amber);margin-bottom:6px}
-.year-card p{font-size:12px;color:var(--tdim);line-height:1.5}
+/* ── START SCREEN ───────────────────────────────────────────── */
+#start-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:48px 24px;text-align:center;background:#fff}
+.start-logo{font-family:'Bebas Neue','Poppins',sans-serif;font-size:72px;font-weight:400;letter-spacing:.03em;color:var(--black);line-height:.95;margin-bottom:6px}
+.start-logo span{color:var(--cyan)}
+.start-pill{display:inline-block;background:var(--black);color:#fff;padding:6px 20px;border-radius:var(--radius-pill);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:28px}
+.start-sub{font-size:15px;color:var(--muted);margin-bottom:16px;max-width:480px;line-height:1.65;font-weight:500}
+.start-choose{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:28px;letter-spacing:.04em;text-transform:uppercase}
+.year-cards{display:flex;gap:20px;flex-wrap:wrap;justify-content:center}
+.year-card{background:#fff;border:1.5px solid var(--hairline);border-radius:var(--radius-card);padding:32px 36px;cursor:pointer;transition:border-color .2s cubic-bezier(.2,.8,.2,1),box-shadow .2s cubic-bezier(.2,.8,.2,1),transform .2s cubic-bezier(.2,.8,.2,1);min-width:180px;text-align:left;box-shadow:var(--elev-1)}
+.year-card:hover{border-color:var(--black);box-shadow:var(--elev-2);transform:translateY(-4px)}
+.year-card h2{font-family:'Bebas Neue','Poppins',sans-serif;font-size:40px;font-weight:400;color:var(--black);margin-bottom:8px;letter-spacing:.03em}
+.year-card p{font-size:13px;color:var(--muted);line-height:1.6;font-weight:500}
+.year-card .yc-cta{margin-top:20px;display:inline-block;background:var(--black);color:#fff;padding:10px 22px;border-radius:var(--radius-pill);font-size:12px;font-weight:700;letter-spacing:.02em}
 
-/* HEADER */
-#header{background:var(--bg2);border-bottom:1px solid var(--bdr);padding:10px 16px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px}
-#hd-logo{font-size:14px;font-weight:800;color:var(--amber);letter-spacing:2px;white-space:nowrap}
+/* ── HEADER ─────────────────────────────────────────────────── */
+#header{background:var(--black);padding:12px 24px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:16px}
+#hd-logo{font-family:'Bebas Neue','Poppins',sans-serif;font-size:22px;font-weight:400;color:#fff;letter-spacing:.06em;white-space:nowrap}
+#hd-logo span{color:var(--cyan)}
 #hd-month{text-align:center}
-#hd-month-big{font-size:28px;font-weight:900;color:#fff;letter-spacing:1px;line-height:1;text-transform:uppercase}
-#hd-month-sub{font-size:11px;color:var(--tdim);margin-top:2px}
+#hd-month-big{font-size:20px;font-weight:700;color:#fff;line-height:1;letter-spacing:-.02em}
+#hd-month-sub{font-size:10px;color:rgba(255,255,255,.4);margin-top:2px;font-weight:600;letter-spacing:.1em;text-transform:uppercase}
 #hd-right{text-align:right}
-#prog-bar{background:var(--bg3);border-radius:4px;height:6px;overflow:hidden;margin-bottom:3px}
-#prog-fill{background:var(--amber);height:100%;transition:width .3s}
-#prog-text{font-size:10px;color:var(--tdim)}
+#prog-bar{background:rgba(255,255,255,.15);border-radius:var(--radius-pill);height:4px;overflow:hidden;margin-bottom:4px;width:140px;margin-left:auto}
+#prog-fill{background:var(--cyan);height:100%;transition:width .3s cubic-bezier(.2,.8,.2,1);border-radius:var(--radius-pill)}
+#prog-text{font-size:10px;color:rgba(255,255,255,.4);font-weight:600;letter-spacing:.04em}
 
-/* EVENT + BREAKDOWN BANNERS */
-#event-banner{display:none;background:var(--amber);color:#000;padding:10px 20px;position:relative}
-#event-banner.show{display:block;animation:fIn .25s ease}
-@keyframes fIn{from{opacity:0;transform:scaleY(0.7)}to{opacity:1;transform:scaleY(1)}}
-#eb-head{font-size:13px;font-weight:800}
-#eb-flav{font-size:11px;margin-top:2px;opacity:.8}
-#eb-turn{font-size:10px;position:absolute;right:14px;top:50%;transform:translateY(-50%);opacity:.6}
-#breakdown-banner{display:none;background:#6b0000;color:#fff;padding:10px 20px;border-top:2px solid #ff3333;animation:fIn .25s ease}
+/* ── BANNERS ────────────────────────────────────────────────── */
+#event-banner{display:none;background:var(--cyan);color:#fff;padding:12px 24px;position:relative}
+#event-banner.show{display:block;animation:fIn .25s cubic-bezier(.2,.8,.2,1)}
+@keyframes fIn{from{opacity:0;transform:scaleY(.7)}to{opacity:1;transform:scaleY(1)}}
+#eb-head{font-size:13px;font-weight:700}
+#eb-flav{font-size:11px;margin-top:2px;opacity:.85;font-weight:500}
+#eb-turn{font-size:10px;position:absolute;right:16px;top:50%;transform:translateY(-50%);opacity:.6;font-weight:600}
+#breakdown-banner{display:none;background:var(--danger-wash);color:var(--danger);padding:12px 24px;border-bottom:2px solid var(--danger);animation:fIn .25s cubic-bezier(.2,.8,.2,1)}
 #breakdown-banner.show{display:block}
-#bd-head{font-size:13px;font-weight:800;color:#ff9999}
-#bd-sub{font-size:11px;margin-top:2px;color:#ffcccc}
+#bd-head{font-size:13px;font-weight:700}
+#bd-sub{font-size:11px;margin-top:2px;color:var(--muted);font-weight:500}
 
-/* 2-COL */
-#main-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 10px 0}
-@media(max-width:680px){#main-grid{grid-template-columns:1fr}}
-.panel{background:var(--bg2);border:1px solid var(--bdr);border-radius:6px;padding:11px}
-.ptitle{font-size:10px;font-weight:700;letter-spacing:1.2px;color:var(--amber);text-transform:uppercase;margin-bottom:8px}
+/* ── 2-COL PANELS ───────────────────────────────────────────── */
+#main-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px 16px 0}
+.panel{background:var(--surface);border-radius:var(--radius-card);padding:16px 20px;box-shadow:var(--elev-1)}
+.ptitle{font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:10px}
 #curve-svg{width:100%;height:88px;display:block;overflow:visible}
-#funds-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px 10px;margin-bottom:7px}
-.fi{font-size:11px}.fi-l{color:var(--tdim)}.fi-v{color:var(--amber);font-family:'Courier New',monospace;font-weight:700}
-#mood-row{display:flex;gap:5px;margin-bottom:6px;flex-wrap:wrap}
-.mtag{font-size:10px;padding:2px 6px;border-radius:3px;font-weight:700}
-.mb{background:#1a3a1f;color:var(--green)}.mr{background:#2d1010;color:var(--red)}.mn{background:var(--bg3);color:var(--tdim)}
+#funds-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;margin-bottom:8px}
+.fi{font-size:11px;display:flex;justify-content:space-between;align-items:center}
+.fi-l{color:var(--muted);font-weight:500}.fi-v{color:var(--ink);font-weight:700}
+#mood-row{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.mtag{font-size:10px;padding:3px 12px;border-radius:var(--radius-pill);font-weight:700;letter-spacing:.04em}
+.mb{background:var(--good-wash);color:var(--good)}.mr{background:var(--danger-wash);color:var(--danger)}.mn{background:var(--bg);color:var(--muted)}
 .comm-lines{display:flex;flex-direction:column;gap:5px}
-.cline{font-size:11px;color:var(--tdim);font-style:italic;border-left:2px solid var(--adim);padding-left:7px;line-height:1.4}
+.cline{font-size:11px;color:var(--muted);font-style:italic;border-left:2px solid var(--hairline);padding-left:8px;line-height:1.5;font-weight:500}
 
-/* POS BAR */
-#pos-bar{background:var(--bg2);border:1px solid var(--bdr);border-radius:6px;padding:8px 14px;margin:10px 10px 0;display:flex;gap:18px;flex-wrap:wrap;align-items:center}
-.ps-l{font-size:10px;color:var(--tdim)}.ps-v{font-size:15px;font-weight:700;font-family:'Courier New',monospace;color:var(--amber)}
-.ps-v.g{color:var(--green)}.ps-v.r{color:var(--red)}
+/* ── POSITION BAR ───────────────────────────────────────────── */
+#pos-bar{background:var(--black);border-radius:var(--radius-card);padding:16px 24px;margin:12px 16px 0;display:flex;gap:32px;flex-wrap:wrap;align-items:center}
+.ps-l{font-size:10px;color:rgba(255,255,255,.45);font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px}
+.ps-v{font-size:18px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums}
+.ps-v.g{color:#4ade80}.ps-v.r{color:#f87171}
 
-/* CHART SECTION */
-#chart-section{background:var(--bg2);border:1px solid var(--bdr);border-radius:6px;margin:10px 10px 0;padding:12px}
-#year-toggle{display:flex;gap:6px;margin-bottom:10px;align-items:center}
-.ytbtn{padding:4px 12px;border:1px solid var(--bdr);background:var(--bg3);color:var(--tdim);border-radius:4px;cursor:pointer;font-size:12px;font-weight:600}
-.ytbtn.active{border-color:var(--amber);color:var(--amber);background:#1a1200}
-.yt-label{font-size:10px;color:var(--tdim);letter-spacing:.8px;text-transform:uppercase;margin-right:4px}
+/* ── CHART SECTION ──────────────────────────────────────────── */
+#chart-section{background:var(--surface);border-radius:var(--radius-card);margin:12px 16px 0;padding:16px 20px;box-shadow:var(--elev-1)}
+#year-toggle{display:flex;gap:8px;margin-bottom:12px;align-items:center}
+.ytbtn{padding:5px 16px;border:1.5px solid var(--hairline);background:var(--bg);color:var(--muted);border-radius:var(--radius-pill);cursor:pointer;font-size:12px;font-weight:600;font-family:'Poppins',sans-serif;transition:all .18s}
+.ytbtn.active{border-color:var(--black);color:var(--black);background:var(--surface)}
+.ytbtn:hover:not(.active){border-color:var(--muted)}
+.yt-label{font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-right:4px;font-weight:700}
 #bar-svg-wrap{width:100%;overflow:hidden}
 #bar-svg{display:block;width:100%}
 
-/* TRADE CONTROLS */
-#trade-controls{margin-top:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-top:1px solid var(--bdr);padding-top:10px}
-#sel-info{font-size:12px;color:var(--tdim);flex:1;min-width:180px}
-#sel-info span{color:var(--text)}
-select{background:var(--bg3);border:1px solid var(--bdr);color:var(--text);padding:5px 7px;border-radius:4px;font-size:12px}
-select:focus{outline:none;border-color:var(--amber)}
-.btn{padding:6px 14px;border:none;border-radius:4px;cursor:pointer;font-weight:700;font-size:12px}
-.btn-buy{background:var(--green);color:#000}.btn-buy:hover:not(:disabled){background:#5fca70}
-.btn-sell{background:#2d1010;color:var(--red);border:1px solid var(--red)}.btn-sell:hover:not(:disabled){background:#3d1515}
-.btn-end{background:var(--amber);color:#000;padding:6px 18px}.btn-end:hover{background:#f0b818}
-.btn-tr{background:var(--bg3);color:var(--text);border:1px solid var(--bdr)}.btn-tr:hover:not(:disabled){border-color:var(--amber);color:var(--amber)}.btn-tr:disabled{opacity:.4;cursor:default}
-.btn:disabled{opacity:.4;cursor:default}
-#trade-msg{font-size:11px;color:var(--red);margin-top:5px;width:100%;min-height:15px}
+/* ── TRADE CONTROLS ─────────────────────────────────────────── */
+#trade-controls{margin-top:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;border-top:1px solid var(--hairline);padding-top:12px}
+#sel-info{font-size:12px;color:var(--muted);flex:1;min-width:180px;font-weight:500}
+#sel-info span{color:var(--ink);font-weight:600}
+select{background:var(--bg);border:1.5px solid var(--hairline);color:var(--ink);padding:7px 12px;border-radius:var(--radius-pill);font-size:12px;font-weight:600;font-family:'Poppins',sans-serif;cursor:pointer}
+select:focus{outline:none;border-color:var(--black)}
+.btn{padding:8px 20px;border:none;border-radius:var(--radius-pill);cursor:pointer;font-weight:600;font-size:12px;font-family:'Poppins',sans-serif;transition:all .18s cubic-bezier(.2,.8,.2,1)}
+.btn-buy{background:var(--black);color:#fff}
+.btn-buy:hover:not(:disabled){background:#1a1a1a;box-shadow:0 4px 16px rgba(0,0,0,.15);transform:translateY(-1px)}
+.btn-sell{background:#fff;color:var(--danger);border:1.5px solid var(--danger)}
+.btn-sell:hover:not(:disabled){background:var(--danger-wash)}
+.btn-end{background:var(--cyan);color:#fff;font-weight:700;padding:8px 24px}
+.btn-end:hover:not(:disabled){background:#00a0d8;box-shadow:0 4px 16px rgba(0,176,240,.3);transform:translateY(-1px)}
+.btn-tr{background:var(--surface);color:var(--ink);border:1.5px solid var(--hairline)}
+.btn-tr:hover:not(:disabled){border-color:var(--black);color:var(--black)}
+.btn-tr:disabled,.btn:disabled{opacity:.4;cursor:default}
+#trade-msg{font-size:11px;color:var(--danger);margin-top:6px;width:100%;min-height:16px;font-weight:600}
 
-/* LOG */
-#log-wrap{background:var(--bg2);border:1px solid var(--bdr);border-radius:6px;margin:10px 10px 10px;max-height:120px;overflow-y:auto;padding:8px 10px}
-.le{font-size:11px;font-family:'Courier New',monospace;padding:2px 0;border-bottom:1px solid #1e2428;color:var(--tdim)}
-.lb{color:var(--green)}.ls{color:var(--red)}.lc{color:#555}.lev{color:var(--adim)}.lpnl{color:var(--amber)}
+/* ── TRADE LOG ──────────────────────────────────────────────── */
+#log-wrap{background:var(--surface);border-radius:var(--radius-card);margin:12px 16px 16px;max-height:120px;overflow-y:auto;padding:12px 16px;box-shadow:var(--elev-1)}
+.le{font-size:11px;padding:3px 0;border-bottom:1px solid var(--bg);color:var(--muted);font-weight:500}
+.lb{color:var(--good);font-weight:700}.ls{color:var(--danger);font-weight:700}.lc{color:var(--muted)}.lev{color:var(--warn);font-weight:700}.lpnl{color:var(--cyan);font-weight:700}
 
-/* MODALS */
-.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:100;align-items:center;justify-content:center}
+/* ── MODALS ─────────────────────────────────────────────────── */
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;align-items:center;justify-content:center}
 .mo.show{display:flex}
-.mb2{background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:22px;max-width:500px;width:92%;max-height:85vh;overflow-y:auto}
-.mb2 h2{color:var(--amber);margin-bottom:10px}
-.mb2 p{color:var(--text);line-height:1.6;margin-bottom:10px;font-size:13px}
-.tq{border-left:3px solid var(--amber);padding-left:12px;color:var(--text);font-style:italic;font-size:13px;line-height:1.7;margin-bottom:12px}
-.ms-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--bdr)}
-.ms-badge{padding:3px 10px;border-radius:4px;font-weight:700;font-size:11px;min-width:90px;text-align:center}
-.ms-risen{background:#f85149;color:#000}
-.ms-fallen{background:#3fb950;color:#000}
-.ms-flat{background:#30363d;color:var(--tdim)}
-.ms-detail{font-size:12px;color:var(--text)}
-.ms-sub{font-size:11px;color:var(--tdim);margin-top:1px}
+.mb2{background:#fff;border-radius:var(--radius-card);padding:28px 32px;max-width:520px;width:92%;max-height:85vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.12)}
+.mb2 h2{color:var(--black);margin-bottom:12px;font-size:20px;font-weight:700}
+.mb2 p{color:var(--muted);line-height:1.6;margin-bottom:10px;font-size:13px;font-weight:500}
+.tq{border-left:3px solid var(--cyan);padding:12px 16px;background:#f0fbff;color:var(--ink);font-style:italic;font-size:13px;line-height:1.7;margin-bottom:14px;border-radius:0 8px 8px 0;font-weight:500}
+.ms-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--hairline)}
+.ms-badge{padding:4px 14px;border-radius:var(--radius-pill);font-weight:700;font-size:11px;min-width:110px;text-align:center}
+.ms-risen{background:var(--danger-wash);color:var(--danger)}.ms-fallen{background:var(--good-wash);color:var(--good)}.ms-flat{background:var(--bg);color:var(--muted)}
+.ms-detail{font-size:12px;color:var(--ink);font-weight:600}.ms-sub{font-size:11px;color:var(--muted);margin-top:1px;font-weight:500}
 
-/* TUTORIAL */
-#tut-box{display:none;position:fixed;background:var(--bg2);border:2px solid var(--amber);border-radius:8px;padding:15px;max-width:290px;z-index:200}
-#tut-box h3{color:var(--amber);margin-bottom:7px;font-size:13px}
-#tut-box p{color:var(--text);font-size:12px;line-height:1.5;margin-bottom:10px}
+/* ── TUTORIAL ───────────────────────────────────────────────── */
+#tut-box{display:none;position:fixed;background:#fff;border:2px solid var(--black);border-radius:var(--radius-card);padding:20px 24px;max-width:300px;z-index:200;box-shadow:0 12px 40px rgba(0,0,0,.12)}
+#tut-box h3{color:var(--black);margin-bottom:8px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+#tut-box p{color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:12px;font-weight:500}
 .tnav{display:flex;gap:8px;align-items:center}
 
-/* END SCREEN */
-#end-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:300;overflow-y:auto;padding:20px}
+/* ── END SCREEN ─────────────────────────────────────────────── */
+#end-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:300;overflow-y:auto;padding:32px}
 #end-screen.show{display:block}
-#end-screen h1{color:var(--amber);font-size:22px;margin-bottom:6px}
-.grade-text{font-size:26px;font-weight:700;margin:10px 0}
+#end-screen h1{color:var(--black);font-family:'Bebas Neue','Poppins',sans-serif;font-size:48px;font-weight:400;letter-spacing:.04em;margin-bottom:4px}
+.grade-text{font-size:36px;font-weight:700;margin:10px 0}
 #end-chart{width:100%;height:180px;display:block;margin:12px 0}
-.esec{background:var(--bg2);border:1px solid var(--bdr);border-radius:6px;padding:14px;margin-bottom:14px}
-.esec h3{color:var(--amber);margin-bottom:10px;font-size:11px;letter-spacing:1px;text-transform:uppercase}
-.di{padding:4px 0;border-bottom:1px solid var(--bdr);font-size:12px;color:var(--tdim)}.di span{color:var(--text)}
-::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:3px}
+.esec{background:#fff;border-radius:var(--radius-card);padding:20px 24px;margin-bottom:16px;box-shadow:var(--elev-1)}
+.esec h3{color:var(--muted);margin-bottom:10px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.di{padding:5px 0;border-bottom:1px solid var(--hairline);font-size:12px;color:var(--muted);font-weight:500}.di span{color:var(--ink);font-weight:600}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--hairline);border-radius:var(--radius-pill)}
 
-/* MOBILE BLOCK */
-#mobile-wall{display:none;position:fixed;inset:0;background:var(--bg);z-index:9999;align-items:center;justify-content:center;text-align:center;padding:32px;flex-direction:column;gap:16px}
+/* ── MOBILE BLOCK ───────────────────────────────────────────── */
+#mobile-wall{display:none;position:fixed;inset:0;background:#fff;z-index:9999;align-items:center;justify-content:center;text-align:center;padding:32px;flex-direction:column;gap:16px}
 @media(max-width:768px){#mobile-wall{display:flex}#start-screen,#game-screen,#end-screen{display:none!important}}
-#mobile-wall h2{font-size:22px;font-weight:800;color:var(--amber)}
-#mobile-wall p{font-size:14px;color:var(--tdim);line-height:1.7;max-width:320px}
+#mobile-wall h2{font-size:24px;font-weight:700;color:var(--black)}
+#mobile-wall p{font-size:14px;color:var(--muted);line-height:1.7;max-width:320px;font-weight:500}
 #mobile-wall .micon{font-size:48px;margin-bottom:4px}
 </style>
 </head>
@@ -140,20 +156,25 @@ select:focus{outline:none;border-color:var(--amber)}
 
 <!-- START SCREEN -->
 <div id="start-screen">
-  <h1>TRUE TRADING</h1>
-  <p class="start-sub">You are Head of Energy Procurement for a 120 GWh/year business. Buy power for your company's needs and beat the market average price. Choose your contract horizon:</p>
+  <div class="start-logo">TRUE <span>TRADING</span></div>
+  <div class="start-pill">True Group Energy Advisory</div>
+  <p class="start-sub">You are Head of Energy Procurement for a 120 GWh/year business. Buy power for your company's needs and beat the market average price.</p>
+  <p class="start-choose">Choose your contract horizon</p>
   <div class="year-cards">
     <div class="year-card" onclick="startGame(1)">
       <h2>1 Year</h2>
       <p>12 delivery months<br>~15 trading turns<br>Fast game</p>
+      <div class="yc-cta">Start →</div>
     </div>
     <div class="year-card" onclick="startGame(2)">
       <h2>2 Years</h2>
       <p>24 delivery months<br>~27 trading turns<br>Standard game</p>
+      <div class="yc-cta">Start →</div>
     </div>
     <div class="year-card" onclick="startGame(3)">
       <h2>3 Years</h2>
       <p>36 delivery months<br>~39 trading turns<br>Full challenge</p>
+      <div class="yc-cta">Start →</div>
     </div>
   </div>
 </div>
@@ -162,7 +183,7 @@ select:focus{outline:none;border-color:var(--amber)}
 <div id="game-screen" style="display:none">
 
   <div id="header">
-    <div id="hd-logo">TRUE TRADING</div>
+    <div id="hd-logo">TRUE <span>TRADING</span></div>
     <div id="hd-month">
       <div id="hd-month-big">—</div>
       <div id="hd-month-sub">Current trading month</div>
@@ -174,7 +195,7 @@ select:focus{outline:none;border-color:var(--amber)}
   </div>
 
   <div id="breakdown-banner">
-    <div id="bd-head">⚠ OPERATIONAL BREAKDOWN</div>
+    <div id="bd-head">OPERATIONAL BREAKDOWN</div>
     <div id="bd-sub">The CFO is on holiday — no trades can be authorised this month!</div>
   </div>
 
@@ -223,8 +244,8 @@ select:focus{outline:none;border-color:var(--amber)}
       </select>
       <button class="btn btn-buy" id="btn-buy" onclick="doBuy()">BUY</button>
       <button class="btn btn-sell" id="btn-sell" onclick="doSell()">SELL</button>
-      <button class="btn btn-tr" id="btn-trader" onclick="showTrader()">🗣 Trader (<span id="tok-count">3</span>)</button>
-      <button class="btn btn-end" onclick="endTurn()">END TURN →</button>
+      <button class="btn btn-tr" id="btn-trader" onclick="showTrader()">Trader (<span id="tok-count">3</span>)</button>
+      <button class="btn btn-end" onclick="endTurn()">End Turn →</button>
     </div>
     <div id="trade-msg"></div>
   </div>
@@ -239,16 +260,16 @@ select:focus{outline:none;border-color:var(--amber)}
 <!-- MARKET SUMMARY MODAL -->
 <div class="mo" id="ms-modal">
   <div class="mb2">
-    <h2>📊 Market Summary</h2>
+    <h2>Market Summary</h2>
     <div id="ms-content"></div>
-    <button class="btn btn-end" style="margin-top:12px;width:100%" onclick="closeSummary()">Continue →</button>
+    <button class="btn btn-end" style="margin-top:16px;width:100%" onclick="closeSummary()">Continue →</button>
   </div>
 </div>
 
 <!-- TRADER MODAL -->
 <div class="mo" id="trader-modal">
   <div class="mb2">
-    <h2>🗣 The Trader</h2>
+    <h2>True Group Trader</h2>
     <div class="tq" id="trader-msg"></div>
     <button class="btn btn-end" onclick="closeModal('trader-modal')">Got it</button>
   </div>
@@ -260,15 +281,15 @@ select:focus{outline:none;border-color:var(--amber)}
   <p id="tut-body"></p>
   <div class="tnav">
     <button class="btn btn-end" id="tut-next" onclick="tutNext()">Next →</button>
-    <button class="btn" style="background:var(--bg3);color:var(--tdim);font-size:11px" onclick="tutSkip()">Skip</button>
-    <span style="font-size:10px;color:var(--tdim)" id="tut-prog"></span>
+    <button class="btn" style="background:var(--bg);color:var(--muted);font-size:11px;border:1.5px solid var(--hairline)" onclick="tutSkip()">Skip</button>
+    <span style="font-size:10px;color:var(--muted);font-weight:600" id="tut-prog"></span>
   </div>
 </div>
 
 <!-- END SCREEN -->
 <div id="end-screen">
-  <h1>⚡ Game Over — True Trading</h1>
-  <div id="end-headline" style="font-size:14px;color:var(--text);margin-bottom:6px"></div>
+  <h1>Game Over</h1>
+  <div id="end-headline" style="font-size:15px;color:var(--muted);margin-bottom:6px;font-weight:500"></div>
   <div class="grade-text" id="end-grade"></div>
   <div class="esec">
     <h3>Achieved Price vs Market Average</h3>
@@ -277,7 +298,7 @@ select:focus{outline:none;border-color:var(--amber)}
   <div class="esec"><h3>Strategy Breakdown</h3><div id="end-strategy"></div></div>
   <div class="esec"><h3>Best &amp; Worst Decisions</h3><div id="end-decisions"></div></div>
   <div class="esec"><h3>Key Market Events</h3><div id="end-events"></div></div>
-  <button class="btn btn-end" style="margin-top:8px" onclick="backToStart()">Play Again</button>
+  <button class="btn btn-end" style="margin-top:8px" onclick="backToStart()">Play Again →</button>
 </div>
 
 <script>
@@ -793,21 +814,21 @@ function renderCurveChart(){
   if(cc>0) h+=`<rect x="${PL}" y="${PT}" width="${cc/nm*IW}" height="${IH}" fill="#111"/>`;
   let bp='';
   for(let d=0;d<nm;d++){const ma=marketAvg(d);if(ma)bp+=`${xp(d)},${yp(ma)} `;}
-  if(bp) h+=`<polyline points="${bp.trim()}" fill="none" stroke="#b07d05" stroke-width="1" stroke-dasharray="3,3"/>`;
+  if(bp) h+=`<polyline points="${bp.trim()}" fill="none" stroke="#00B0F0" stroke-width="1" stroke-dasharray="3,3"/>`;
   let cp='';
   for(let d=0;d<nm;d++){if(gs.dm[d].status!=='cashed_out') cp+=`${xp(d)},${yp(gs.fc[d])} `;}
-  if(cp) h+=`<polyline points="${cp.trim()}" fill="none" stroke="#e3a008" stroke-width="1.5"/>`;
+  if(cp) h+=`<polyline points="${cp.trim()}" fill="none" stroke="#2C3E50" stroke-width="1.5"/>`;
   for(let d=0;d<nm;d++){
     const dm=gs.dm[d];
     if(dm.status==='cashed_out'&&dm.cashoutPrice)
-      h+=`<circle cx="${xp(d)}" cy="${yp(dm.cashoutPrice)}" r="2" fill="#666"/>`;
+      h+=`<circle cx="${xp(d)}" cy="${yp(dm.cashoutPrice)}" r="2" fill="#A0AEB8"/>`;
     if(dm.hedgedGWh>0.01&&dm.avgHedgePrice&&dm.status!=='cashed_out'){
       const ma=marketAvg(d)||dm.avgHedgePrice;
-      h+=`<circle cx="${xp(d)}" cy="${yp(dm.avgHedgePrice)}" r="3" fill="${dm.avgHedgePrice<=ma?'#3fb950':'#f85149'}" opacity=".85"/>`;
+      h+=`<circle cx="${xp(d)}" cy="${yp(dm.avgHedgePrice)}" r="3" fill="${dm.avgHedgePrice<=ma?'#27AE60':'#E74C3B'}" opacity=".9"/>`;
     }
   }
-  h+=`<text x="${PL+1}" y="${PT+7}" fill="#555" font-size="7" font-family="monospace">£${Math.round(maxP)}</text>`;
-  h+=`<text x="${PL+1}" y="${H-PB-1}" fill="#555" font-size="7" font-family="monospace">£${Math.round(minP)}</text>`;
+  h+=`<text x="${PL+1}" y="${PT+7}" fill="#A0AEB8" font-size="7" font-family="monospace">£${Math.round(maxP)}</text>`;
+  h+=`<text x="${PL+1}" y="${H-PB-1}" fill="#A0AEB8" font-size="7" font-family="monospace">£${Math.round(minP)}</text>`;
   svg.innerHTML=h;
 }
 
@@ -880,7 +901,7 @@ function setViewYear(y){
   renderYearToggle();renderBarChart();renderTradeControls();
 }
 
-// ─── BAR CHART (Option C colours — Warm Dark) ───────────────────
+// ─── BAR CHART (True Group brand colours) ───────────────────────
 function renderBarChart(){
   const wrap=document.getElementById('bar-svg-wrap');
   const W=wrap.getBoundingClientRect().width||700;
@@ -914,57 +935,57 @@ function renderBarChart(){
     const fillTop=barTop+barH-fillH;
 
     // Bar background
-    h+=`<rect x="${x}" y="${barTop}" width="${barW}" height="${barH}" fill="${isCashed?'#111111':'#1a1a1a'}" rx="2"/>`;
+    h+=`<rect x="${x}" y="${barTop}" width="${barW}" height="${barH}" fill="${isCashed?'#EAEEF2':'#F4F6F8'}" rx="3"/>`;
 
     // Filled bar
     if(fillH>0){
       const aboveMkt=dm.avgHedgePrice&&ma&&dm.avgHedgePrice>ma;
-      const fillCol=isCashed?'#444':aboveMkt?'#ef5350':'#26a69a';
+      const fillCol=isCashed?'#C8D4DC':aboveMkt?'#E74C3B':'#27AE60';
       h+=`<rect x="${x}" y="${fillTop}" width="${barW}" height="${fillH}" fill="${fillCol}" rx="2" opacity="${isCashed?.5:.9}"/>`;
       // Price inside bar
       if(fillH>14&&dm.avgHedgePrice){
         const ly=Math.max(fillTop+11,fillTop+fillH-3);
-        h+=`<text x="${x+barW/2}" y="${ly}" fill="#000" font-size="${fs}" text-anchor="middle" font-family="monospace" font-weight="700">£${fmt(dm.avgHedgePrice)}</text>`;
+        h+=`<text x="${x+barW/2}" y="${ly}" fill="#fff" font-size="${fs}" text-anchor="middle" font-family="monospace" font-weight="700">£${fmt(dm.avgHedgePrice)}</text>`;
       }
     }
 
     // Open % label inside empty space
     if(dm.hedgedPct>0&&dm.hedgedPct<100&&!isCashed){
-      h+=`<text x="${x+barW/2}" y="${fillTop>barTop+12?fillTop-3:barTop+10}" fill="#888" font-size="${Math.max(6,fs-1)}" text-anchor="middle" font-family="sans-serif">${dm.openPct}% open</text>`;
+      h+=`<text x="${x+barW/2}" y="${fillTop>barTop+12?fillTop-3:barTop+10}" fill="#5A6A7A" font-size="${Math.max(6,fs-1)}" text-anchor="middle" font-family="sans-serif">${dm.openPct}% open</text>`;
     }
     // 100% open label
     if(dm.hedgedPct===0&&!isCashed){
-      h+=`<text x="${x+barW/2}" y="${barTop+barH/2+4}" fill="#555" font-size="${fs}" text-anchor="middle" font-family="sans-serif">OPEN</text>`;
+      h+=`<text x="${x+barW/2}" y="${barTop+barH/2+4}" fill="#A0AEB8" font-size="${fs}" text-anchor="middle" font-family="sans-serif">OPEN</text>`;
     }
 
     // Selection highlight
-    if(isSel) h+=`<rect x="${x-1}" y="${barTop-1}" width="${barW+2}" height="${barH+2}" fill="none" stroke="#ffffff" stroke-width="2" rx="3"/>`;
+    if(isSel) h+=`<rect x="${x-1}" y="${barTop-1}" width="${barW+2}" height="${barH+2}" fill="none" stroke="#000000" stroke-width="2" rx="3"/>`;
 
     // Month label
     const mlabel=isCashed?MN[dMI(d)]+'✓':MN[dMI(d)];
-    h+=`<text x="${x+barW/2}" y="${labY}" fill="${isCashed?'#555':'#f5f5f5'}" font-size="${fsMon}" text-anchor="middle" font-family="sans-serif" font-weight="600">${mlabel}</text>`;
+    h+=`<text x="${x+barW/2}" y="${labY}" fill="${isCashed?'#A0AEB8':'#2C3E50'}" font-size="${fsMon}" text-anchor="middle" font-family="sans-serif" font-weight="700">${mlabel}</text>`;
 
     if(isCashed){
       // Cashed months: spot cashout at avgLabY, realized delta at mktLabY
       if(dm.cashoutPrice){
-        h+=`<text x="${x+barW/2}" y="${avgLabY}" fill="#666" font-size="${fs}" text-anchor="middle" font-family="monospace">sp £${fmt(dm.cashoutPrice)}</text>`;
+        h+=`<text x="${x+barW/2}" y="${avgLabY}" fill="#5A6A7A" font-size="${fs}" text-anchor="middle" font-family="monospace">sp £${fmt(dm.cashoutPrice)}</text>`;
         if(ma!==null){
           const realEff=dm.totalHedgeCost/10;
           const realDelta=ma-realEff;
           const dK=Math.round(realDelta*10000/1000);
-          const dCol=realDelta>=0?'#26a69a':'#ef5350';
+          const dCol=realDelta>=0?'#27AE60':'#E74C3B';
           h+=`<text x="${x+barW/2}" y="${mktLabY}" fill="${dCol}" font-size="${Math.max(6,fs-1)}" text-anchor="middle" font-family="monospace">${dK>=0?'+':''}£${Math.abs(dK)}k</text>`;
         }
       }
     } else {
       // Active months: market avg at avgLabY, impact vs market at mktLabY
       if(ma!==null){
-        h+=`<text x="${x+barW/2}" y="${avgLabY}" fill="#ffca28" font-size="${fs}" text-anchor="middle" font-family="monospace">£${fmt(ma)}</text>`;
+        h+=`<text x="${x+barW/2}" y="${avgLabY}" fill="#00B0F0" font-size="${fs}" text-anchor="middle" font-family="monospace">£${fmt(ma)}</text>`;
       }
       if(dm.avgHedgePrice&&ma){
         const impPerMWh=ma-dm.avgHedgePrice;
         const impK=Math.round(impPerMWh*10000/1000);
-        const impCol=impPerMWh>=0?'#26a69a':'#ef5350';
+        const impCol=impPerMWh>=0?'#27AE60':'#E74C3B';
         h+=`<text x="${x+barW/2}" y="${mktLabY}" fill="${impCol}" font-size="${Math.max(6,fs-1)}" text-anchor="middle" font-family="monospace">${impK>=0?'+':''}£${Math.abs(impK)}k</text>`;
       }
     }
@@ -976,7 +997,7 @@ function renderBarChart(){
   }
 
   // Legend
-  h+=`<text x="4" y="${H-1}" fill="#555" font-size="7" font-family="sans-serif">■ Green bar = below market avg  ■ Red bar = above market avg  ■ Orange label = market avg  ■ ±£Xk = monthly £ impact vs market</text>`;
+  h+=`<text x="4" y="${H-1}" fill="#A0AEB8" font-size="7" font-family="sans-serif">Green = below market avg  ·  Red = above  ·  Blue label = market avg  ·  ±£Xk = monthly impact vs market</text>`;
   svg.innerHTML=h;
 }
 
@@ -1024,13 +1045,13 @@ function showEndScreen(){
   const minP=Math.min(...allP)-3,maxP=Math.max(...allP)+3;
   const yc=p=>10+(maxP-p)/(maxP-minP)*150;
   const bw=Math.floor(W/nm)-1;
-  let ch=`<line x1="0" y1="${yc(benchAvg)}" x2="${W}" y2="${yc(benchAvg)}" stroke="#b07d05" stroke-width="1" stroke-dasharray="4,3"/>`;
-  ch+=`<text x="${W-4}" y="${yc(benchAvg)-3}" fill="#b07d05" font-size="8" text-anchor="end">Mkt avg £${fmt(benchAvg)}</text>`;
+  let ch=`<line x1="0" y1="${yc(benchAvg)}" x2="${W}" y2="${yc(benchAvg)}" stroke="#00B0F0" stroke-width="1.5" stroke-dasharray="4,3"/>`;
+  ch+=`<text x="${W-4}" y="${yc(benchAvg)-4}" fill="#00B0F0" font-size="8" text-anchor="end" font-weight="600">Mkt avg £${fmt(benchAvg)}</text>`;
   gs.dm.forEach((dm,i)=>{
     const x=i*(bw+1),ep=dm.totalHedgeCost/10;
     const ma=marketAvg(dm.id)||benchAvg;
-    ch+=`<rect x="${x}" y="${yc(ep)}" width="${bw}" height="${H-5-yc(ep)}" fill="${ep<=ma?'#26a69a':'#ef5350'}" opacity=".8"/>`;
-    ch+=`<line x1="${x}" y1="${yc(ma)}" x2="${x+bw}" y2="${yc(ma)}" stroke="#ff9500" stroke-width="1"/>`;
+    ch+=`<rect x="${x}" y="${yc(ep)}" width="${bw}" height="${H-5-yc(ep)}" fill="${ep<=ma?'#27AE60':'#E74C3B'}" opacity=".85"/>`;
+    ch+=`<line x1="${x}" y1="${yc(ma)}" x2="${x+bw}" y2="${yc(ma)}" stroke="#00B0F0" stroke-width="1.5"/>`;
   });
   svg.innerHTML=ch;
 
@@ -1046,10 +1067,10 @@ function showEndScreen(){
     const ma=marketAvg(dm.id)||benchAvg;
     return{label:dm.label,ep,ma,delta:ma-ep};
   }).sort((a,b)=>b.delta-a.delta);
-  let decH='<div style="color:#26a69a;font-size:10px;margin-bottom:4px;font-weight:700">BEST — MOST SAVED vs MARKET</div>';
-  decs.slice(0,3).forEach(d=>decH+=`<div class="di">${d.label}: £${fmt(d.ep)} vs mkt £${fmt(d.ma)} — <span style="color:${d.delta>=0?'#26a69a':'#ef5350'}">${d.delta>=0?'saved':'cost'} £${fmt(Math.abs(d.delta))}/MWh</span></div>`);
-  decH+='<div style="color:#ef5350;font-size:10px;margin:8px 0 4px;font-weight:700">WORST — MOST EXPENSIVE vs MARKET</div>';
-  decs.slice(-3).reverse().forEach(d=>decH+=`<div class="di">${d.label}: £${fmt(d.ep)} vs mkt £${fmt(d.ma)} — <span style="color:${d.delta>=0?'#26a69a':'#ef5350'}">${d.delta>=0?'saved':'cost'} £${fmt(Math.abs(d.delta))}/MWh</span></div>`);
+  let decH='<div style="color:#27AE60;font-size:10px;margin-bottom:4px;font-weight:700;letter-spacing:.06em">BEST — MOST SAVED vs MARKET</div>';
+  decs.slice(0,3).forEach(d=>decH+=`<div class="di">${d.label}: £${fmt(d.ep)} vs mkt £${fmt(d.ma)} — <span style="color:${d.delta>=0?'#27AE60':'#E74C3B'}">${d.delta>=0?'saved':'cost'} £${fmt(Math.abs(d.delta))}/MWh</span></div>`);
+  decH+='<div style="color:#E74C3B;font-size:10px;margin:8px 0 4px;font-weight:700;letter-spacing:.06em">WORST — MOST EXPENSIVE vs MARKET</div>';
+  decs.slice(-3).reverse().forEach(d=>decH+=`<div class="di">${d.label}: £${fmt(d.ep)} vs mkt £${fmt(d.ma)} — <span style="color:${d.delta>=0?'#27AE60':'#E74C3B'}">${d.delta>=0?'saved':'cost'} £${fmt(Math.abs(d.delta))}/MWh</span></div>`);
   document.getElementById('end-decisions').innerHTML=decH;
 
   let evH='';

@@ -1138,9 +1138,10 @@ function renderCurveChart(){
     } else if(dm.status!=='cashed_out'){
       if(dm.hedgedGWh<=0.01){
         h+=`<circle cx="${xp(d)}" cy="${yp(gs.fc[d])}" r="3" fill="#C0CAD4" opacity=".7"/>`;
-      } else if(dm.avgHedgePrice){
-        const ma=marketAvg(d)||dm.avgHedgePrice;
-        h+=`<circle cx="${xp(d)}" cy="${yp(dm.avgHedgePrice)}" r="3" fill="${dm.avgHedgePrice<=ma?'#27AE60':'#E74C3B'}" opacity=".85"/>`;
+      } else if(dm.hedgedGWh>0.01){
+        const effPc=(dm.totalHedgeCost-dm.realizedPnl)/dm.hedgedGWh;
+        const ma=marketAvg(d)||effPc;
+        h+=`<circle cx="${xp(d)}" cy="${yp(effPc)}" r="3" fill="${effPc<=ma?'#27AE60':'#E74C3B'}" opacity=".85"/>`;
       }
     }
   }
@@ -1295,15 +1296,18 @@ function renderBarChart(){
     // Bar background
     h+=`<rect x="${x}" y="${barTop}" width="${barW}" height="${barH}" fill="${isCashed?'#D8DFE8':'#D0D8E2'}" rx="3"/>`;
 
+    // Effective hedge price: buy cost adjusted for any round-trip P&L
+    const effP=dm.hedgedGWh>0.01?(dm.totalHedgeCost-dm.realizedPnl)/dm.hedgedGWh:null;
+
     // Filled bar
     if(fillH>0){
-      const aboveMkt=dm.avgHedgePrice&&ma&&dm.avgHedgePrice>ma;
+      const aboveMkt=effP&&ma&&effP>ma;
       const fillCol=isCashed?'#C8D4DC':aboveMkt?'#E74C3B':'#27AE60';
       h+=`<rect x="${x}" y="${fillTop}" width="${barW}" height="${fillH}" fill="${fillCol}" rx="2" opacity="${isCashed?.5:.9}"/>`;
       // Price inside bar
-      if(fillH>14&&dm.avgHedgePrice){
+      if(fillH>14&&effP){
         const ly=Math.max(fillTop+11,fillTop+fillH-3);
-        h+=`<text x="${x+barW/2}" y="${ly}" fill="#fff" font-size="${fs}" text-anchor="middle" font-family="monospace" font-weight="700">£${fmt(dm.avgHedgePrice)}</text>`;
+        h+=`<text x="${x+barW/2}" y="${ly}" fill="#fff" font-size="${fs}" text-anchor="middle" font-family="monospace" font-weight="700">£${fmt(effP)}</text>`;
       }
     }
 
@@ -1340,10 +1344,9 @@ function renderBarChart(){
       if(ma!==null){
         h+=`<text x="${x+barW/2}" y="${avgLabY}" fill="#00B0F0" font-size="${fs}" text-anchor="middle" font-family="monospace">£${fmt(ma)}</text>`;
       }
-      if(dm.avgHedgePrice&&ma){
-        const impPerMWh=ma-dm.avgHedgePrice;
-        const impK=Math.round(impPerMWh*10000/1000);
-        const impCol=impPerMWh>=0?'#27AE60':'#E74C3B';
+      if(effP&&ma){
+        const impK=Math.round((ma-effP)*dm.hedgedGWh);
+        const impCol=impK>=0?'#27AE60':'#E74C3B';
         h+=`<text x="${x+barW/2}" y="${mktLabY}" fill="${impCol}" font-size="${Math.max(6,fs-1)}" text-anchor="middle" font-family="monospace">${impK>=0?'+':''}£${Math.abs(impK)}k</text>`;
       }
     }

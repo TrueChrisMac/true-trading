@@ -1078,10 +1078,9 @@ function renderCurveChart(){
   svg.style.height=H+'px';
 
   const nm=gs.numMonths;
-  const avg12=computeFwdAvg12();
   const actP=gs.dm.filter(d=>d.status!=='cashed_out').map(d=>gs.fc[d.id]);
   const bPs=gs.dm.map(d=>marketAvg(d.id)).filter(v=>v!==null);
-  const all=[...actP,...bPs,...(gs.fwdAvgHistory||[]),avg12];
+  const all=[...actP,...bPs,...(gs.fwdAvgHistory||[])];
   if(!all.length){svg.innerHTML='';return;}
   const rawMin=Math.min(...all),rawMax=Math.max(...all);
   const pad=Math.max(4,(rawMax-rawMin)*0.08);
@@ -1118,9 +1117,6 @@ function renderCurveChart(){
     }
   }
 
-  // 12m average — dashed blue horizontal line
-  h+=`<line x1="${PL}" y1="${yp(avg12)}" x2="${PL+IW}" y2="${yp(avg12)}" stroke="#00B0F0" stroke-width="1.5" stroke-dasharray="5,4"/>`;
-
   // Forward curve line — dotted black
   let cp='';
   for(let d=0;d<nm;d++){if(gs.dm[d].status!=='cashed_out') cp+=`${xp(d)},${yp(gs.fc[d])} `;}
@@ -1134,14 +1130,18 @@ function renderCurveChart(){
     h+=`<polyline points="${hp.trim()}" fill="none" stroke="#00B0F0" stroke-width="2" stroke-linejoin="round"/>`;
   }
 
-  // Hedge price dots + cashed dots
+  // Dots: cashed, unhedged open (grey), hedged open (green/red)
   for(let d=0;d<nm;d++){
     const dm=gs.dm[d];
-    if(dm.status==='cashed_out'&&dm.cashoutPrice)
+    if(dm.status==='cashed_out'&&dm.cashoutPrice){
       h+=`<circle cx="${xp(d)}" cy="${yp(dm.cashoutPrice)}" r="2" fill="#C0CAD4"/>`;
-    if(dm.hedgedGWh>0.01&&dm.avgHedgePrice&&dm.status!=='cashed_out'){
-      const ma=marketAvg(d)||dm.avgHedgePrice;
-      h+=`<circle cx="${xp(d)}" cy="${yp(dm.avgHedgePrice)}" r="3" fill="${dm.avgHedgePrice<=ma?'#27AE60':'#E74C3B'}" opacity=".85"/>`;
+    } else if(dm.status!=='cashed_out'){
+      if(dm.hedgedGWh<=0.01){
+        h+=`<circle cx="${xp(d)}" cy="${yp(gs.fc[d])}" r="3" fill="#C0CAD4" opacity=".7"/>`;
+      } else if(dm.avgHedgePrice){
+        const ma=marketAvg(d)||dm.avgHedgePrice;
+        h+=`<circle cx="${xp(d)}" cy="${yp(dm.avgHedgePrice)}" r="3" fill="${dm.avgHedgePrice<=ma?'#27AE60':'#E74C3B'}" opacity=".85"/>`;
+      }
     }
   }
 
@@ -1149,8 +1149,8 @@ function renderCurveChart(){
   const lx=PL+IW+8,ly=PT+2,li=17;
   const lg=[
     {type:'dash',stroke:'#2C3E50',da:'4,3',sw:2,label:'Fwd Curve'},
-    {type:'dash',stroke:'#00B0F0',da:'5,4',sw:1.5,label:'12m Avg'},
-    {type:'line',stroke:'#00B0F0',sw:2,label:'Avg History'},
+    {type:'line',stroke:'#00B0F0',sw:2,label:'Market'},
+    {type:'dot',fill:'#C0CAD4',label:'Unhedged'},
     {type:'dot',fill:'#27AE60',label:'Hedged ↓'},
     {type:'dot',fill:'#E74C3B',label:'Hedged ↑'}
   ];

@@ -57,7 +57,7 @@ body{background:var(--bg);color:var(--ink);font-family:'Poppins',-apple-system,'
 #bd-sub{font-size:11px;margin-top:2px;color:var(--muted);font-weight:500}
 
 /* ── 2-COL PANELS ───────────────────────────────────────────── */
-#main-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px 16px 0}
+#main-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:24px 16px 0}
 .panel{background:var(--surface);border-radius:var(--radius-card);padding:16px 20px;box-shadow:var(--elev-1)}
 .ptitle{font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:10px}
 #curve-svg{width:100%;display:block;overflow:visible}
@@ -71,7 +71,7 @@ body{background:var(--bg);color:var(--ink);font-family:'Poppins',-apple-system,'
 .cline{font-size:11px;color:var(--muted);font-style:italic;border-left:2px solid var(--hairline);padding-left:8px;line-height:1.5;font-weight:500}
 
 /* ── POSITION BAR ───────────────────────────────────────────── */
-#pos-bar{background:var(--black);border-radius:var(--radius-card);padding:14px 24px;margin:12px 16px 0;display:flex;gap:28px;flex-wrap:wrap;align-items:center}
+#pos-bar{background:var(--black);border-radius:var(--radius-card);padding:14px 24px;margin:16px 16px 0;display:flex;gap:28px;flex-wrap:wrap;align-items:center}
 #pos-year-tabs{width:100%;display:none;gap:6px;margin-bottom:6px}
 .pstab{background:transparent;border:1.5px solid rgba(255,255,255,.25);color:rgba(255,255,255,.55);padding:3px 14px;border-radius:var(--radius-pill);cursor:pointer;font-size:11px;font-weight:600;font-family:'Poppins',sans-serif;transition:all .18s}
 .pstab:hover{border-color:rgba(255,255,255,.6);color:#fff}
@@ -81,7 +81,7 @@ body{background:var(--bg);color:var(--ink);font-family:'Poppins',-apple-system,'
 .ps-v.g{color:#4ade80}.ps-v.r{color:#f87171}
 
 /* ── CHART SECTION ──────────────────────────────────────────── */
-#chart-section{background:var(--surface);border-radius:var(--radius-card);margin:12px 16px 0;padding:16px 20px;box-shadow:var(--elev-1)}
+#chart-section{background:var(--surface);border-radius:var(--radius-card);margin:16px 16px 0;padding:16px 20px;box-shadow:var(--elev-1)}
 #year-toggle{display:flex;gap:8px;margin-bottom:12px;align-items:center}
 .ytbtn{padding:5px 16px;border:1.5px solid var(--hairline);background:var(--bg);color:var(--muted);border-radius:var(--radius-pill);cursor:pointer;font-size:12px;font-weight:600;font-family:'Poppins',sans-serif;transition:all .18s}
 .ytbtn.active{border-color:var(--black);color:var(--black);background:var(--surface)}
@@ -103,8 +103,8 @@ select:focus{outline:none;border-color:var(--black)}
 .btn-sell:hover:not(:disabled){background:var(--danger-wash)}
 .btn-end{background:var(--cyan);color:#fff;font-weight:700;padding:8px 24px}
 .btn-end:hover:not(:disabled){background:#00a0d8;box-shadow:0 4px 16px rgba(0,176,240,.3);transform:translateY(-1px)}
-.btn-tr{background:var(--surface);color:var(--ink);border:1.5px solid var(--hairline)}
-.btn-tr:hover:not(:disabled){border-color:var(--black);color:var(--black)}
+.btn-tr{background:#27AE60;color:#fff;border:1.5px solid #27AE60}
+.btn-tr:hover:not(:disabled){background:#219a52;border-color:#219a52}
 .btn-tr:disabled,.btn:disabled{opacity:.4;cursor:default}
 #trade-msg{font-size:11px;color:var(--danger);margin-top:6px;width:100%;min-height:16px;font-weight:600}
 
@@ -240,7 +240,7 @@ select:focus{outline:none;border-color:var(--black)}
 
   <div id="main-grid">
     <div class="panel">
-      <div class="ptitle">Forward Curve</div>
+      <div class="ptitle">Market Info</div>
       <svg id="curve-svg" preserveAspectRatio="xMidYMid meet"></svg>
     </div>
     <div class="panel">
@@ -1070,7 +1070,7 @@ function renderBanners(){
 function renderCurveChart(){
   const svg=document.getElementById('curve-svg');
   const W=Math.max(260,svg.getBoundingClientRect().width||400);
-  const H=152,PL=36,PR=10,PT=14,PB=30;
+  const H=200,PL=36,PR=82,PT=14,PB=30;
   const IW=W-PL-PR,IH=H-PT-PB;
   svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
   svg.setAttribute('width',W);
@@ -1078,9 +1078,10 @@ function renderCurveChart(){
   svg.style.height=H+'px';
 
   const nm=gs.numMonths;
+  const avg12=computeFwdAvg12();
   const actP=gs.dm.filter(d=>d.status!=='cashed_out').map(d=>gs.fc[d.id]);
   const bPs=gs.dm.map(d=>marketAvg(d.id)).filter(v=>v!==null);
-  const all=[...actP,...bPs,...(gs.fwdAvgHistory||[])];
+  const all=[...actP,...bPs,...(gs.fwdAvgHistory||[]),avg12];
   if(!all.length){svg.innerHTML='';return;}
   const rawMin=Math.min(...all),rawMax=Math.max(...all);
   const pad=Math.max(4,(rawMax-rawMin)*0.08);
@@ -1117,7 +1118,10 @@ function renderCurveChart(){
     }
   }
 
-  // Forward curve line — dotted
+  // 12m average — dashed blue horizontal line
+  h+=`<line x1="${PL}" y1="${yp(avg12)}" x2="${PL+IW}" y2="${yp(avg12)}" stroke="#00B0F0" stroke-width="1.5" stroke-dasharray="5,4"/>`;
+
+  // Forward curve line — dotted black
   let cp='';
   for(let d=0;d<nm;d++){if(gs.dm[d].status!=='cashed_out') cp+=`${xp(d)},${yp(gs.fc[d])} `;}
   if(cp) h+=`<polyline points="${cp.trim()}" fill="none" stroke="#2C3E50" stroke-width="2" stroke-dasharray="4,3"/>`;
@@ -1140,6 +1144,25 @@ function renderCurveChart(){
       h+=`<circle cx="${xp(d)}" cy="${yp(dm.avgHedgePrice)}" r="3" fill="${dm.avgHedgePrice<=ma?'#27AE60':'#E74C3B'}" opacity=".85"/>`;
     }
   }
+
+  // Legend (right margin)
+  const lx=PL+IW+8,ly=PT+2,li=17;
+  const lg=[
+    {type:'dash',stroke:'#2C3E50',da:'4,3',sw:2,label:'Fwd Curve'},
+    {type:'dash',stroke:'#00B0F0',da:'5,4',sw:1.5,label:'12m Avg'},
+    {type:'line',stroke:'#00B0F0',sw:2,label:'Avg History'},
+    {type:'dot',fill:'#27AE60',label:'Hedged ↓'},
+    {type:'dot',fill:'#E74C3B',label:'Hedged ↑'}
+  ];
+  lg.forEach((item,i)=>{
+    const y=ly+i*li;
+    if(item.type==='dot'){
+      h+=`<circle cx="${lx+7}" cy="${y+4}" r="3" fill="${item.fill}" opacity=".85"/>`;
+    } else {
+      h+=`<line x1="${lx}" y1="${y+4}" x2="${lx+14}" y2="${y+4}" stroke="${item.stroke}" stroke-width="${item.sw}"${item.da?` stroke-dasharray="${item.da}"`:''}/>`;
+    }
+    h+=`<text x="${lx+18}" y="${y+8}" fill="#8090A0" font-size="8.5" font-family="sans-serif">${item.label}</text>`;
+  });
 
   svg.innerHTML=h;
 }

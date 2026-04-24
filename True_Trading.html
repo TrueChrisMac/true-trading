@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>True Trading</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -44,7 +45,7 @@ body{background:var(--bg);color:var(--ink);font-family:'Poppins',-apple-system,'
 #prog-text{font-size:10px;color:rgba(255,255,255,.4);font-weight:600;letter-spacing:.04em}
 
 /* ── BANNERS ────────────────────────────────────────────────── */
-#event-banner{display:none;background:var(--cyan);color:#fff;padding:12px 24px;position:relative}
+#event-banner{display:none;background:var(--danger);color:#fff;padding:12px 24px;position:relative}
 #event-banner.show{display:block;animation:fIn .25s cubic-bezier(.2,.8,.2,1)}
 @keyframes fIn{from{opacity:0;transform:scaleY(.7)}to{opacity:1;transform:scaleY(1)}}
 #eb-head{font-size:13px;font-weight:700}
@@ -59,7 +60,7 @@ body{background:var(--bg);color:var(--ink);font-family:'Poppins',-apple-system,'
 #main-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px 16px 0}
 .panel{background:var(--surface);border-radius:var(--radius-card);padding:16px 20px;box-shadow:var(--elev-1)}
 .ptitle{font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:10px}
-#curve-svg{width:100%;height:88px;display:block;overflow:visible}
+#curve-svg{width:100%;display:block;overflow:visible}
 #funds-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;margin-bottom:8px}
 .fi{font-size:11px;display:flex;justify-content:space-between;align-items:center}
 .fi-l{color:var(--muted);font-weight:500}.fi-v{color:var(--ink);font-weight:700}
@@ -70,7 +71,11 @@ body{background:var(--bg);color:var(--ink);font-family:'Poppins',-apple-system,'
 .cline{font-size:11px;color:var(--muted);font-style:italic;border-left:2px solid var(--hairline);padding-left:8px;line-height:1.5;font-weight:500}
 
 /* ── POSITION BAR ───────────────────────────────────────────── */
-#pos-bar{background:var(--black);border-radius:var(--radius-card);padding:16px 24px;margin:12px 16px 0;display:flex;gap:32px;flex-wrap:wrap;align-items:center}
+#pos-bar{background:var(--black);border-radius:var(--radius-card);padding:14px 24px;margin:12px 16px 0;display:flex;gap:28px;flex-wrap:wrap;align-items:center}
+#pos-year-tabs{width:100%;display:none;gap:6px;margin-bottom:6px}
+.pstab{background:transparent;border:1.5px solid rgba(255,255,255,.25);color:rgba(255,255,255,.55);padding:3px 14px;border-radius:var(--radius-pill);cursor:pointer;font-size:11px;font-weight:600;font-family:'Poppins',sans-serif;transition:all .18s}
+.pstab:hover{border-color:rgba(255,255,255,.6);color:#fff}
+.pstab-active{background:#fff;color:#000;border-color:#fff}
 .ps-l{font-size:10px;color:rgba(255,255,255,.45);font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px}
 .ps-v{font-size:18px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums}
 .ps-v.g{color:#4ade80}.ps-v.r{color:#f87171}
@@ -137,6 +142,26 @@ select:focus{outline:none;border-color:var(--black)}
 .di{padding:5px 0;border-bottom:1px solid var(--hairline);font-size:12px;color:var(--muted);font-weight:500}.di span{color:var(--ink);font-weight:600}
 ::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--hairline);border-radius:var(--radius-pill)}
 
+/* ── MODE SELECTION ─────────────────────────────────────────── */
+.mode-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
+.mode-card{border:1.5px solid var(--hairline);border-radius:var(--radius-card);padding:20px;cursor:pointer;transition:all .2s cubic-bezier(.2,.8,.2,1)}
+.mode-card:hover{border-color:var(--black);box-shadow:var(--elev-2);transform:translateY(-2px)}
+.mode-card-live{border-color:var(--cyan)}
+.mode-card-live:hover{border-color:var(--cyan);box-shadow:0 4px 16px rgba(0,176,240,.15)}
+.mode-card h3{font-size:17px;font-weight:700;color:var(--black);margin-bottom:6px}
+.mode-card p{font-size:12px;color:var(--muted);line-height:1.6;font-weight:500;margin-bottom:14px}
+.mode-card .mc-tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 12px;border-radius:var(--radius-pill);background:var(--black);color:#fff}
+.mode-card-live .mc-tag{background:var(--cyan)}
+#live-name-wrap{margin-top:16px;padding-top:16px;border-top:1px solid var(--hairline)}
+#player-name-input{width:100%;padding:10px 16px;border:1.5px solid var(--hairline);border-radius:var(--radius-pill);font-size:14px;font-family:'Poppins',sans-serif;font-weight:500;outline:none;transition:border-color .18s}
+#player-name-input:focus{border-color:var(--black)}
+
+/* ── LEADERBOARD ─────────────────────────────────────────────── */
+.lb-row{display:grid;grid-template-columns:28px 1fr 90px 90px 80px;align-items:center;padding:7px 0;border-bottom:1px solid var(--hairline);font-size:12px;font-weight:500;color:var(--muted)}
+.lb-row.lb-head{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--hairline)}
+.lb-row.lb-me{background:var(--warn-wash);margin:0 -4px;padding:7px 4px;border-radius:6px;color:var(--ink)}
+.lb-rank{font-weight:700;color:var(--black)}.lb-name{font-weight:600;color:var(--ink)}.lb-saving{font-weight:700}.lb-saving.pos{color:var(--good)}.lb-saving.neg{color:var(--danger)}
+
 /* ── MOBILE BLOCK ───────────────────────────────────────────── */
 #mobile-wall{display:none;position:fixed;inset:0;background:#fff;z-index:9999;align-items:center;justify-content:center;text-align:center;padding:32px;flex-direction:column;gap:16px}
 @media(max-width:768px){#mobile-wall{display:flex}#start-screen,#game-screen,#end-screen{display:none!important}}
@@ -156,25 +181,26 @@ select:focus{outline:none;border-color:var(--black)}
 
 <!-- START SCREEN -->
 <div id="start-screen">
+  <img src="True_Group_Black_Logo.png" alt="True Group" style="height:60px;margin-bottom:24px;display:block">
   <div class="start-logo">TRUE <span>TRADING</span></div>
   <div class="start-pill">True Group Energy Advisory</div>
   <p class="start-sub">You are Head of Energy Procurement for a 120 GWh/year business. Buy power for your company's needs and beat the market average price.</p>
   <p class="start-choose">Choose your contract horizon</p>
   <div class="year-cards">
-    <div class="year-card" onclick="startGame(1)">
+    <div class="year-card" onclick="selectContract(1)">
       <h2>1 Year</h2>
       <p>12 delivery months<br>~15 trading turns<br>Fast game</p>
-      <div class="yc-cta">Start →</div>
+      <div class="yc-cta">Select →</div>
     </div>
-    <div class="year-card" onclick="startGame(2)">
+    <div class="year-card" onclick="selectContract(2)">
       <h2>2 Years</h2>
       <p>24 delivery months<br>~27 trading turns<br>Standard game</p>
-      <div class="yc-cta">Start →</div>
+      <div class="yc-cta">Select →</div>
     </div>
-    <div class="year-card" onclick="startGame(3)">
+    <div class="year-card" onclick="selectContract(3)">
       <h2>3 Years</h2>
       <p>36 delivery months<br>~39 trading turns<br>Full challenge</p>
-      <div class="yc-cta">Start →</div>
+      <div class="yc-cta">Select →</div>
     </div>
   </div>
 </div>
@@ -183,7 +209,7 @@ select:focus{outline:none;border-color:var(--black)}
 <div id="game-screen" style="display:none">
 
   <div id="header">
-    <div id="hd-logo">TRUE <span>TRADING</span></div>
+    <div id="hd-logo"><img src="True%20Group%20Design%20System/assets/logos/true-group-logo-white.png" alt="True Group" style="height:22px;display:block"></div>
     <div id="hd-month">
       <div id="hd-month-big">—</div>
       <div id="hd-month-sub">Current trading month</div>
@@ -208,7 +234,7 @@ select:focus{outline:none;border-color:var(--black)}
   <div id="main-grid">
     <div class="panel">
       <div class="ptitle">Forward Curve</div>
-      <svg id="curve-svg" viewBox="0 0 560 88" preserveAspectRatio="none"></svg>
+      <svg id="curve-svg" preserveAspectRatio="xMidYMid meet"></svg>
     </div>
     <div class="panel">
       <div class="ptitle">Market Commentary</div>
@@ -219,8 +245,9 @@ select:focus{outline:none;border-color:var(--black)}
   </div>
 
   <div id="pos-bar">
-    <div><div class="ps-l">Portfolio Price</div><div class="ps-v" id="ps-avg">—</div></div>
-    <div><div class="ps-l">Market Avg Price</div><div class="ps-v" id="ps-bench">—</div></div>
+    <div id="pos-year-tabs"></div>
+    <div><div class="ps-l" id="ps-l-avg">Portfolio Price</div><div class="ps-v" id="ps-avg">—</div></div>
+    <div><div class="ps-l" id="ps-l-bench">Market Avg Price</div><div class="ps-v" id="ps-bench">—</div></div>
     <div><div class="ps-l">vs Market</div><div class="ps-v" id="ps-save">—</div></div>
     <div><div class="ps-l">Total £ Impact</div><div class="ps-v" id="ps-impact">—</div></div>
   </div>
@@ -244,8 +271,8 @@ select:focus{outline:none;border-color:var(--black)}
       </select>
       <button class="btn btn-buy" id="btn-buy" onclick="doBuy()">BUY</button>
       <button class="btn btn-sell" id="btn-sell" onclick="doSell()">SELL</button>
-      <button class="btn btn-tr" id="btn-trader" onclick="showTrader()">Trader (<span id="tok-count">3</span>)</button>
-      <button class="btn btn-end" onclick="endTurn()">End Turn →</button>
+      <button class="btn btn-tr" id="btn-trader" onclick="showTrader()"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px"><circle cx="6" cy="15" r="4"/><circle cx="18" cy="15" r="4"/><path d="M2 15h4M14 15h4M10 9h4M10 9c0-2.2 1.8-4 4-4s4 1.8 4 4M10 9c0-2.2-1.8-4-4-4S2 6.8 2 9"/></svg>Trader (<span id="tok-count">3</span>)</button>
+      <button class="btn btn-end" onclick="endTurn()">End Month →</button>
     </div>
     <div id="trade-msg"></div>
   </div>
@@ -255,6 +282,32 @@ select:focus{outline:none;border-color:var(--black)}
     <div id="log-inner"></div>
   </div>
 
+</div>
+
+<!-- MODE SELECTION MODAL -->
+<div class="mo" id="mode-modal">
+  <div class="mb2">
+    <h2 id="mode-modal-title">1 Year Contract</h2>
+    <p style="color:var(--muted);font-size:13px">How would you like to play?</p>
+    <div class="mode-cards">
+      <div class="mode-card" onclick="startPractice()">
+        <h3>Practice</h3>
+        <p>Play freely. Results are not saved. Perfect for learning the market.</p>
+        <span class="mc-tag">No record</span>
+      </div>
+      <div class="mode-card mode-card-live" onclick="showLiveEntry()">
+        <h3>Live</h3>
+        <p>Your final score is saved to the leaderboard. Put your skills on the line.</p>
+        <span class="mc-tag">Leaderboard</span>
+      </div>
+    </div>
+    <div id="live-name-wrap" style="display:none">
+      <p style="font-size:13px;color:var(--ink);font-weight:600;margin-bottom:8px">Enter your name for the leaderboard:</p>
+      <input id="player-name-input" type="text" placeholder="Your name" maxlength="30">
+      <button class="btn btn-end" style="width:100%;margin-top:10px" onclick="startLive()">Start Live Game →</button>
+    </div>
+    <button class="btn" style="background:var(--bg);color:var(--muted);border:1.5px solid var(--hairline);margin-top:10px;font-size:11px" onclick="closeModal('mode-modal')">← Back</button>
+  </div>
 </div>
 
 <!-- MARKET SUMMARY MODAL -->
@@ -288,9 +341,15 @@ select:focus{outline:none;border-color:var(--black)}
 
 <!-- END SCREEN -->
 <div id="end-screen">
+  <img src="True_Group_Black_Logo.png" alt="True Group" style="height:32px;margin-bottom:20px;display:block">
   <h1>Game Over</h1>
   <div id="end-headline" style="font-size:15px;color:var(--muted);margin-bottom:6px;font-weight:500"></div>
   <div class="grade-text" id="end-grade"></div>
+  <div class="esec" style="border:2px solid var(--black)">
+    <h3 style="color:var(--black);font-size:13px;letter-spacing:.05em">Market Journey — 12-Month Forward Average</h3>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px;font-weight:500">How the market level evolved across every trading turn — the market you battled.</div>
+    <svg id="journey-chart" style="width:100%;display:block;overflow:visible"></svg>
+  </div>
   <div class="esec">
     <h3>Achieved Price vs Market Average</h3>
     <svg id="end-chart" viewBox="0 0 720 180" preserveAspectRatio="none"></svg>
@@ -298,10 +357,106 @@ select:focus{outline:none;border-color:var(--black)}
   <div class="esec"><h3>Strategy Breakdown</h3><div id="end-strategy"></div></div>
   <div class="esec"><h3>Best &amp; Worst Decisions</h3><div id="end-decisions"></div></div>
   <div class="esec"><h3>Key Market Events</h3><div id="end-events"></div></div>
+  <div class="esec" id="end-leaderboard-sec" style="display:none">
+    <h3>Leaderboard</h3>
+    <div id="end-leaderboard-status" style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:500"></div>
+    <div id="end-leaderboard"></div>
+  </div>
   <button class="btn btn-end" style="margin-top:8px" onclick="backToStart()">Play Again →</button>
 </div>
 
 <script>
+// ═══════════════════════════════════════════════════════════════
+// SUPABASE
+// ═══════════════════════════════════════════════════════════════
+const SUPA_URL='https://mprzolcpwllbxfavtsxm.supabase.co';
+const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wcnpvbGNwd2xsYnhmYXZ0c3htIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5ODE1NjMsImV4cCI6MjA5MjU1NzU2M30.qxejd0pdqwg-yKL_l5kZ_4mDNAArBmxcTsVpAPiBkCA';
+const db=window.supabase?window.supabase.createClient(SUPA_URL,SUPA_KEY):null;
+
+// ═══════════════════════════════════════════════════════════════
+// MODE SELECTION
+// ═══════════════════════════════════════════════════════════════
+let pendingYears=1;
+
+function selectContract(years){
+  pendingYears=years;
+  document.getElementById('mode-modal-title').textContent=years+' Year Contract';
+  document.getElementById('live-name-wrap').style.display='none';
+  document.getElementById('player-name-input').value='';
+  document.getElementById('mode-modal').classList.add('show');
+}
+
+function startPractice(){
+  closeModal('mode-modal');
+  startGame(pendingYears,false,null);
+}
+
+function showLiveEntry(){
+  document.getElementById('live-name-wrap').style.display='block';
+  document.getElementById('player-name-input').focus();
+}
+
+function startLive(){
+  const name=document.getElementById('player-name-input').value.trim();
+  if(!name){document.getElementById('player-name-input').focus();return;}
+  closeModal('mode-modal');
+  startGame(pendingYears,true,name);
+}
+
+// Allow Enter key in name field
+document.addEventListener('DOMContentLoaded',()=>{
+  const inp=document.getElementById('player-name-input');
+  if(inp) inp.addEventListener('keydown',e=>{if(e.key==='Enter') startLive();});
+});
+
+async function saveResult(data){
+  if(!db) return;
+  try{
+    await db.from('game_results').insert({
+      player_name:data.playerName,
+      game_years:data.gameYears,
+      player_avg:parseFloat(data.playerAvg.toFixed(2)),
+      market_avg:parseFloat(data.benchAvg.toFixed(2)),
+      saving_per_mwh:parseFloat(data.saving.toFixed(2)),
+      total_impact_gbp:Math.round(data.totalImpact),
+      grade:data.grade,
+      turns_taken:data.turns
+    });
+  } catch(e){console.warn('Save failed:',e);}
+}
+
+async function loadAndRenderLeaderboard(gameYears,myName,mySaving){
+  const sec=document.getElementById('end-leaderboard-sec');
+  const statusEl=document.getElementById('end-leaderboard-status');
+  const lbEl=document.getElementById('end-leaderboard');
+  sec.style.display='block';
+  statusEl.textContent='Loading leaderboard...';
+  if(!db){statusEl.textContent='Leaderboard unavailable (offline).';return;}
+  try{
+    const {data,error}=await db.from('game_results')
+      .select('player_name,saving_per_mwh,player_avg,market_avg,grade,created_at')
+      .eq('game_years',gameYears)
+      .order('saving_per_mwh',{ascending:false})
+      .limit(10);
+    if(error) throw error;
+    statusEl.textContent=`Top 10 · ${gameYears}-year contracts`;
+    let h=`<div class="lb-row lb-head"><span>#</span><span>Player</span><span>Portfolio</span><span>Market Avg</span><span>Saving/MWh</span></div>`;
+    (data||[]).forEach((r,i)=>{
+      const isMe=r.player_name===myName&&Math.abs(r.saving_per_mwh-mySaving)<0.05;
+      const sClass=r.saving_per_mwh>=0?'pos':'neg';
+      const sign=r.saving_per_mwh>=0?'+':'';
+      h+=`<div class="lb-row${isMe?' lb-me':''}">
+        <span class="lb-rank">${i+1}</span>
+        <span class="lb-name">${r.player_name}${isMe?' ← you':''}</span>
+        <span>£${r.player_avg.toFixed(2)}</span>
+        <span>£${r.market_avg.toFixed(2)}</span>
+        <span class="lb-saving ${sClass}">${sign}£${Math.abs(r.saving_per_mwh).toFixed(2)}</span>
+      </div>`;
+    });
+    lbEl.innerHTML=h;
+  } catch(e){statusEl.textContent='Could not load leaderboard.';console.warn(e);}
+}
+
 // ═══════════════════════════════════════════════════════════════
 // CONSTANTS
 // ═══════════════════════════════════════════════════════════════
@@ -401,23 +556,25 @@ function makeDM(d){
     lastUnwindPrice:null,lastUnwindPct:0,trades:[]};
 }
 
-function startGame(years){
+function startGame(years,isLive,playerName){
   document.getElementById('start-screen').style.display='none';
   document.getElementById('game-screen').style.display='block';
-  initGame(years);
+  initGame(years,isLive,playerName);
 }
 
 function backToStart(){
   document.getElementById('end-screen').classList.remove('show');
+  document.getElementById('end-leaderboard-sec').style.display='none';
   document.getElementById('game-screen').style.display='none';
   document.getElementById('start-screen').style.display='flex';
 }
 
-function initGame(years){
+function initGame(years,isLive,playerName){
   years=years||gs.gameYears||3;
   const nm=years*12;
   gs={
     gameYears:years,numMonths:nm,turn:0,
+    isLive:!!isLive,playerName:playerName||null,
     dm:[],fc:{},priceHistory:{},
     fundamentals:{},activeShocks:[],
     nextEventIn:rnd(2,4),eventHistory:[],
@@ -427,7 +584,8 @@ function initGame(years){
     recentEventDir:0,viewYear:0,
     selectedMonths:new Set(),
     commLines:['','',''],lastCommTurn:-1,
-    prevCurve:{},baseLevel:85,futureShift:randn(0,3.5)
+    prevCurve:{},baseLevel:85,futureShift:randn(0,4.6),
+    fwdAvgHistory:[],posBarYear:0
   };
   for(let d=0;d<nm;d++){
     gs.dm.push(makeDM(d));
@@ -435,6 +593,7 @@ function initGame(years){
   }
   gs.breakdownTurns=generateBreakdownTurns(years,nm);
   generateCurve(0);
+  gs.fwdAvgHistory.push(computeFwdAvg12());
   for(let d=0;d<nm;d++) gs.priceHistory[d].push(gs.fc[d]);
   gs.fundamentals=genFunds(0);
   updateComm();
@@ -486,7 +645,7 @@ function generateCurve(t){
 
 function updateCurve(t){
   // Consume pre-generated shift (trader sees this before it happens)
-  const shift=(gs.futureShift!==undefined)?gs.futureShift:randn(0,3.5);
+  const shift=(gs.futureShift!==undefined)?gs.futureShift:randn(0,4.6);
   gs.lastShift=shift;
   // Accumulate into persistent base — no mean reversion, allows sustained trends
   gs.baseLevel=clamp(gs.baseLevel+shift,45,300);
@@ -496,16 +655,26 @@ function updateCurve(t){
     const seas=SEA_ADJ[dMI(d)];
     const tp=85*0.003*Math.max(0,dist);
     // Near months get extra independent noise (higher short-term volatility)
-    const nearExtra=dist<3?randn(0,1.5):dist<12?randn(0,0.7):0;
+    const nearExtra=dist<3?randn(0,2.0):dist<12?randn(0,0.9):0;
     let shock=0;
     for(const sh of gs.activeShocks){
       const f=sh.remaining/sh.total;
-      shock+=dist<=3?sh.event.near*f:dist<=12?sh.event.mid*f:sh.event.far*f;
+      // +30% base, +60% for high-impact crisis/flood events (abs near >= 14)
+      const evScale=Math.abs(sh.event.near)>=14?1.6:1.3;
+      shock+=(dist<=3?sh.event.near*f:dist<=12?sh.event.mid*f:sh.event.far*f)*evScale;
     }
     gs.fc[d]=Math.max(40,gs.baseLevel+seas+tp+shock+nearExtra);
   }
   // Pre-generate NEXT turn's move — trader can reference this
-  gs.futureShift=randn(0,3.5);
+  gs.futureShift=randn(0,4.6);
+}
+
+function computeFwdAvg12(){
+  const active=gs.dm.filter(d=>d.status!=='cashed_out');
+  const prices=active.slice(0,12).map(d=>gs.fc[d.id]);
+  const last=prices.length>0?prices[prices.length-1]:gs.baseLevel;
+  while(prices.length<12) prices.push(last);
+  return prices.reduce((s,v)=>s+v,0)/12;
 }
 
 function genFunds(t){
@@ -539,6 +708,7 @@ function startTurn(){
   if(gs.nextEventIn<=0){fireEvent();gs.nextEventIn=rnd(2,4);}
   // Update curve
   updateCurve(t);
+  gs.fwdAvgHistory.push(computeFwdAvg12());
   // Record prices
   for(let d=0;d<gs.numMonths;d++){
     if(gs.dm[d].status!=='cashed_out') gs.priceHistory[d].push(gs.fc[d]);
@@ -765,6 +935,7 @@ function renderAll(){
   renderBanners();
   renderCurveChart();
   renderCommPanel();
+  renderPosYearTabs();
   renderPosBar();
   renderYearToggle();
   renderBarChart();
@@ -787,6 +958,7 @@ function renderBanners(){
     document.getElementById('eb-head').textContent=gs.currentEvent.headline;
     document.getElementById('eb-flav').textContent=gs.currentEvent.flavour;
     document.getElementById('eb-turn').textContent=tLblFull(gs.turn);
+    eb.style.background=gs.currentEvent.near>0?'var(--danger)':'var(--good)';
     eb.classList.add('show');
   } else eb.classList.remove('show');
   // Breakdown banner
@@ -800,35 +972,78 @@ function renderBanners(){
 
 function renderCurveChart(){
   const svg=document.getElementById('curve-svg');
-  const W=560,H=88,PL=4,PT=5,PB=8,IW=W-PL*2,IH=H-PT-PB;
+  const W=Math.max(260,svg.getBoundingClientRect().width||400);
+  const H=152,PL=36,PR=10,PT=14,PB=30;
+  const IW=W-PL-PR,IH=H-PT-PB;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.setAttribute('width',W);
+  svg.setAttribute('height',H);
+  svg.style.height=H+'px';
+
   const nm=gs.numMonths;
   const actP=gs.dm.filter(d=>d.status!=='cashed_out').map(d=>gs.fc[d.id]);
   const bPs=gs.dm.map(d=>marketAvg(d.id)).filter(v=>v!==null);
-  const all=[...actP,...bPs];
+  const all=[...actP,...bPs,...(gs.fwdAvgHistory||[])];
   if(!all.length){svg.innerHTML='';return;}
-  const minP=Math.min(...all)-3,maxP=Math.max(...all)+3;
-  function xp(d){return PL+(d+.5)/nm*IW}
-  function yp(p){return PT+(maxP-p)/(maxP-minP)*IH}
+  const rawMin=Math.min(...all),rawMax=Math.max(...all);
+  const pad=Math.max(4,(rawMax-rawMin)*0.08);
+  const minP=Math.floor((rawMin-pad)/5)*5;
+  const maxP=Math.ceil((rawMax+pad)/5)*5;
+
+  function xp(d){return PL+(d+.5)/nm*IW;}
+  function yp(p){return PT+(maxP-p)/(maxP-minP)*IH;}
+
   let h='';
+
+  // Cashed-out region shade
   const cc=gs.dm.filter(d=>d.status==='cashed_out').length;
-  if(cc>0) h+=`<rect x="${PL}" y="${PT}" width="${cc/nm*IW}" height="${IH}" fill="#111"/>`;
-  let bp='';
-  for(let d=0;d<nm;d++){const ma=marketAvg(d);if(ma)bp+=`${xp(d)},${yp(ma)} `;}
-  if(bp) h+=`<polyline points="${bp.trim()}" fill="none" stroke="#00B0F0" stroke-width="1" stroke-dasharray="3,3"/>`;
+  if(cc>0) h+=`<rect x="${PL}" y="${PT}" width="${cc/nm*IW}" height="${IH}" fill="#F0F2F5" rx="0"/>`;
+
+  // Y-axis gridlines + labels
+  const priceRange=maxP-minP;
+  const yStep=priceRange<=40?5:priceRange<=80?10:priceRange<=160?20:50;
+  const firstY=Math.ceil(minP/yStep)*yStep;
+  for(let p=firstY;p<=maxP;p+=yStep){
+    const y=yp(p);
+    h+=`<line x1="${PL}" y1="${y}" x2="${PL+IW}" y2="${y}" stroke="#EAECEF" stroke-width="1"/>`;
+    h+=`<text x="${PL-3}" y="${y+3.5}" fill="#A0AEB8" font-size="8" font-family="monospace" text-anchor="end">£${p}</text>`;
+  }
+
+  // X-axis: year boundary labels
+  for(let d=0;d<nm;d++){
+    const mi=dMI(d);
+    if(mi===0||d===0){
+      const x=xp(d);
+      const lbl=d===0?MN[mi]:('Y'+dYr(d));
+      h+=`<text x="${x}" y="${H-4}" fill="#B0B8C0" font-size="8" font-family="sans-serif" text-anchor="middle">${lbl}</text>`;
+      h+=`<line x1="${x}" y1="${PT+IH}" x2="${x}" y2="${PT+IH+4}" stroke="#D0D8E0" stroke-width="1"/>`;
+    }
+  }
+
+  // Forward curve line — dotted
   let cp='';
   for(let d=0;d<nm;d++){if(gs.dm[d].status!=='cashed_out') cp+=`${xp(d)},${yp(gs.fc[d])} `;}
-  if(cp) h+=`<polyline points="${cp.trim()}" fill="none" stroke="#2C3E50" stroke-width="1.5"/>`;
+  if(cp) h+=`<polyline points="${cp.trim()}" fill="none" stroke="#2C3E50" stroke-width="2" stroke-dasharray="4,3"/>`;
+
+  // 12m forward avg history line — aligned to delivery-month x-positions (turn i → delivery i-3)
+  if(gs.fwdAvgHistory&&gs.fwdAvgHistory.length>0){
+    function xTurn(i){return Math.min(PL+IW,xp(Math.max(0,i-3)));}
+    let hp='';
+    gs.fwdAvgHistory.forEach((v,i)=>{hp+=`${xTurn(i)},${yp(v)} `;});
+    h+=`<polyline points="${hp.trim()}" fill="none" stroke="#00B0F0" stroke-width="2" stroke-linejoin="round"/>`;
+  }
+
+  // Hedge price dots + cashed dots
   for(let d=0;d<nm;d++){
     const dm=gs.dm[d];
     if(dm.status==='cashed_out'&&dm.cashoutPrice)
-      h+=`<circle cx="${xp(d)}" cy="${yp(dm.cashoutPrice)}" r="2" fill="#A0AEB8"/>`;
+      h+=`<circle cx="${xp(d)}" cy="${yp(dm.cashoutPrice)}" r="2" fill="#C0CAD4"/>`;
     if(dm.hedgedGWh>0.01&&dm.avgHedgePrice&&dm.status!=='cashed_out'){
       const ma=marketAvg(d)||dm.avgHedgePrice;
-      h+=`<circle cx="${xp(d)}" cy="${yp(dm.avgHedgePrice)}" r="3" fill="${dm.avgHedgePrice<=ma?'#27AE60':'#E74C3B'}" opacity=".9"/>`;
+      h+=`<circle cx="${xp(d)}" cy="${yp(dm.avgHedgePrice)}" r="3" fill="${dm.avgHedgePrice<=ma?'#27AE60':'#E74C3B'}" opacity=".85"/>`;
     }
   }
-  h+=`<text x="${PL+1}" y="${PT+7}" fill="#A0AEB8" font-size="7" font-family="monospace">£${Math.round(maxP)}</text>`;
-  h+=`<text x="${PL+1}" y="${H-PB-1}" fill="#A0AEB8" font-size="7" font-family="monospace">£${Math.round(minP)}</text>`;
+
   svg.innerHTML=h;
 }
 
@@ -858,15 +1073,38 @@ function renderCommPanel(){
   document.getElementById('comm-lines').innerHTML=gs.commLines.map(l=>`<div class="cline">${l}</div>`).join('');
 }
 
+function renderPosYearTabs(){
+  const el=document.getElementById('pos-year-tabs');
+  if(!el) return;
+  if(!gs.gameYears||gs.gameYears<=1){el.style.display='none';return;}
+  el.style.display='flex';
+  const y=gs.posBarYear||0;
+  let h=`<button class="pstab${y===0?' pstab-active':''}" onclick="setPosBarYear(0)">All Years</button>`;
+  for(let i=1;i<=gs.gameYears;i++){
+    h+=`<button class="pstab${y===i?' pstab-active':''}" onclick="setPosBarYear(${i})">Year ${i}</button>`;
+  }
+  el.innerHTML=h;
+}
+
+function setPosBarYear(y){
+  gs.posBarYear=y;
+  renderPosYearTabs();
+  renderPosBar();
+}
+
 function renderPosBar(){
-  const od=gs.dm.filter(d=>d.status!=='cashed_out');
-  // Portfolio price: hedged at locked price + open volume at current forward
+  // All months (or filtered year) — settled and active — for a true running P&L
+  const allDms=gs.posBarYear>0?gs.dm.filter(dm=>dYr(dm.id)===gs.posBarYear):gs.dm;
   let portCost=0;
-  od.forEach(dm=>{portCost+=dm.totalHedgeCost+dm.openGWh*gs.fc[dm.id];});
-  const portVol=od.length*10;
+  allDms.forEach(dm=>{
+    // Settled: totalHedgeCost already includes spot cashout on open volume
+    // Active: locked hedge cost + open volume marked to current forward
+    portCost+=dm.totalHedgeCost+(dm.status!=='cashed_out'?dm.openGWh*gs.fc[dm.id]:0);
+  });
+  const portVol=allDms.length*10;
   const portAvg=portVol>0?portCost/portVol:null;
-  // Market benchmark: running average per month
-  const mAvgs=od.map(d=>marketAvg(d.id)).filter(v=>v!==null);
+  // Market benchmark: running average per month across all months
+  const mAvgs=allDms.map(d=>marketAvg(d.id)).filter(v=>v!==null);
   const mAvg=mAvgs.length?mAvgs.reduce((s,v)=>s+v,0)/mAvgs.length:null;
   document.getElementById('ps-avg').textContent=portAvg?`£${fmt(portAvg)}/MWh`:'—';
   document.getElementById('ps-bench').textContent=mAvg?`£${fmt(mAvg)}/MWh`:'—';
@@ -876,7 +1114,7 @@ function renderPosBar(){
     const sign=vsM<0?'-':vsM>0?'+':'';
     vEl.textContent=sign+'£'+Math.abs(vsM).toFixed(2)+'/MWh';
     vEl.className='ps-v '+(vsM<=0?'g':'r');
-    const totalImpact=(mAvg-portAvg)*od.length*10000;
+    const totalImpact=(mAvg-portAvg)*allDms.length*10000;
     const iEl=document.getElementById('ps-impact');
     iEl.textContent=fmtK(totalImpact);
     iEl.className='ps-v '+(totalImpact>=0?'g':'r');
@@ -935,7 +1173,7 @@ function renderBarChart(){
     const fillTop=barTop+barH-fillH;
 
     // Bar background
-    h+=`<rect x="${x}" y="${barTop}" width="${barW}" height="${barH}" fill="${isCashed?'#EAEEF2':'#F4F6F8'}" rx="3"/>`;
+    h+=`<rect x="${x}" y="${barTop}" width="${barW}" height="${barH}" fill="${isCashed?'#D8DFE8':'#D0D8E2'}" rx="3"/>`;
 
     // Filled bar
     if(fillH>0){
@@ -1079,7 +1317,107 @@ function showEndScreen(){
     evH+=`<div class="di"><span style="color:${col}">${eh.event.near>0?'↑':'↓'} ${eh.event.headline}</span> <span>(Turn ${eh.turn+1})</span></div>`;
   });
   document.getElementById('end-events').innerHTML=evH||'<div class="di">No major events fired.</div>';
+
+  // Leaderboard: hide by default, show and populate if Live mode
+  document.getElementById('end-leaderboard-sec').style.display='none';
+  if(gs.isLive&&gs.playerName){
+    saveResult({
+      playerName:gs.playerName,gameYears:gs.gameYears,
+      playerAvg,benchAvg,saving,totalImpact,
+      grade:grade.l,turns:gs.turn
+    }).then(()=>loadAndRenderLeaderboard(gs.gameYears,gs.playerName,saving));
+  }
+
+  // Market Journey chart
+  renderJourneyChart(playerAvg);
+
   document.getElementById('end-screen').classList.add('show');
+}
+
+function renderJourneyChart(playerAvg){
+  const svg=document.getElementById('journey-chart');
+  if(!svg||!gs.fwdAvgHistory||gs.fwdAvgHistory.length<2){
+    if(svg) svg.innerHTML='<text x="10" y="20" fill="#A0AEB8" font-size="11" font-family="sans-serif">Not enough data</text>';
+    return;
+  }
+  const data=gs.fwdAvgHistory;
+  const n=data.length;
+  const W=Math.max(400,svg.getBoundingClientRect().width||700);
+  const H=200,PL=42,PR=16,PT=16,PB=32;
+  const IW=W-PL-PR,IH=H-PT-PB;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.setAttribute('width',W);
+  svg.setAttribute('height',H);
+  svg.style.height=H+'px';
+
+  const allVals=[...data,playerAvg].filter(v=>v!=null);
+  const rawMin=Math.min(...allVals),rawMax=Math.max(...allVals);
+  const pad=Math.max(4,(rawMax-rawMin)*0.12);
+  const minP=Math.floor((rawMin-pad)/5)*5;
+  const maxP=Math.ceil((rawMax+pad)/5)*5;
+
+  function xp(i){return n<=1?PL+IW/2:PL+i/(n-1)*IW;}
+  function yp(p){return PT+(maxP-p)/(maxP-minP)*IH;}
+
+  let h='';
+
+  // Y gridlines + labels
+  const pr=maxP-minP;
+  const yStep=pr<=40?5:pr<=80?10:pr<=160?20:50;
+  const firstY=Math.ceil(minP/yStep)*yStep;
+  for(let p=firstY;p<=maxP;p+=yStep){
+    const y=yp(p);
+    h+=`<line x1="${PL}" y1="${y}" x2="${PL+IW}" y2="${y}" stroke="#F0F2F4" stroke-width="1"/>`;
+    h+=`<text x="${PL-3}" y="${y+3.5}" fill="#A0AEB8" font-size="9" font-family="monospace" text-anchor="end">£${p}</text>`;
+  }
+
+  // X-axis turn labels
+  const xStep=Math.max(1,Math.ceil(n/8));
+  for(let i=0;i<n;i+=xStep){
+    h+=`<text x="${xp(i)}" y="${H-3}" fill="#B0B8C0" font-size="8" font-family="sans-serif" text-anchor="middle">T${i+1}</text>`;
+  }
+  // Always label last turn
+  h+=`<text x="${xp(n-1)}" y="${H-3}" fill="#B0B8C0" font-size="8" font-family="sans-serif" text-anchor="middle">T${n}</text>`;
+
+  // Event markers
+  if(gs.eventHistory){
+    gs.eventHistory.forEach(eh=>{
+      const ti=eh.turn+1; // fwdAvgHistory index = turn index (turn 0 = index 0)
+      if(ti>=0&&ti<n){
+        const x=xp(ti);
+        const col=eh.event.near>0?'#E74C3B':'#27AE60';
+        h+=`<line x1="${x}" y1="${PT}" x2="${x}" y2="${PT+IH}" stroke="${col}" stroke-width="1" opacity=".25"/>`;
+        h+=`<text x="${x}" y="${PT-3}" fill="${col}" font-size="8" font-family="sans-serif" text-anchor="middle">${eh.event.near>0?'▲':'▼'}</text>`;
+      }
+    });
+  }
+
+  // Player avg reference line
+  if(playerAvg!=null&&playerAvg>=minP&&playerAvg<=maxP){
+    const ypa=yp(playerAvg);
+    h+=`<line x1="${PL}" y1="${ypa}" x2="${PL+IW}" y2="${ypa}" stroke="#2C3E50" stroke-width="1.5" stroke-dasharray="6,4" opacity=".55"/>`;
+    h+=`<text x="${PL+IW+2}" y="${ypa+4}" fill="#2C3E50" font-size="8" font-family="monospace" opacity=".7" font-weight="600">Your avg £${Math.round(playerAvg)}</text>`;
+  }
+
+  // Gradient fill under line
+  const gradId='jg'+Math.round(Math.random()*9999);
+  h+=`<defs><linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00B0F0" stop-opacity=".2"/><stop offset="100%" stop-color="#00B0F0" stop-opacity="0"/></linearGradient></defs>`;
+  let pts='';
+  for(let i=0;i<n;i++) pts+=`${xp(i)},${yp(data[i])} `;
+  const areaPts=`${xp(0)},${PT+IH} ${pts.trim()} ${xp(n-1)},${PT+IH}`;
+  h+=`<polygon points="${areaPts}" fill="url(#${gradId})"/>`;
+
+  // Main line
+  h+=`<polyline points="${pts.trim()}" fill="none" stroke="#00B0F0" stroke-width="2.5" stroke-linejoin="round"/>`;
+
+  // Start and end dots + labels
+  const startY=yp(data[0]),endY=yp(data[n-1]);
+  h+=`<circle cx="${xp(0)}" cy="${startY}" r="4" fill="#00B0F0"/>`;
+  h+=`<text x="${xp(0)+7}" y="${startY+4}" fill="#00B0F0" font-size="9" font-family="monospace" font-weight="700">£${Math.round(data[0])}</text>`;
+  h+=`<circle cx="${xp(n-1)}" cy="${endY}" r="4" fill="#00B0F0"/>`;
+  h+=`<text x="${xp(n-1)-7}" y="${endY+4}" fill="#00B0F0" font-size="9" font-family="monospace" text-anchor="end" font-weight="700">£${Math.round(data[n-1])}</text>`;
+
+  svg.innerHTML=h;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1089,7 +1427,7 @@ const TUT=[
   {title:'Step 1 — Your Delivery Months',body:'The bar chart shows all your delivery months. Each bar fills as you hedge. Click bars to select them, then choose a percentage and click BUY.',anchor:'chart-section'},
   {title:'Step 2 — Current Trading Month',body:'The large month name at the top is your current trading turn. Jan–Mar are Year 0 (pre-game setup). April Year 1 is the first delivery month — you have 3 turns to hedge it before it cashes out at spot.',anchor:'hd-month'},
   {title:'Step 3 — Market Commentary',body:'The commentary panel shows four market fundamentals: Gas Storage % (low = bullish, high = bearish), Wind Gen % (high wind depresses prices by displacing gas plant), Demand Index (above 100 = tight system, upward pressure), Nuclear % (high availability = bearish). Mood tags summarise near-term, winter and far-curve sentiment. Watch these to anticipate where the curve is heading.',anchor:'main-grid'},
-  {title:'Step 4 — The Market Average Benchmark',body:'The warm yellow price below each bar is the running market average for that month — the average of every forward price shown since the game started. Your goal: build a portfolio price BELOW this average.',anchor:'chart-section'},
+  {title:'Step 4 — The Market Average Benchmark',body:'The blue price below each bar is the running market average for that month — the average of every forward price shown since the game started. Your goal: build a portfolio price BELOW this average.',anchor:'chart-section'},
   {title:'Step 5 — Cashout & Spot Risk',body:'When a delivery month arrives it cashes out at the volatile spot price. Any unhedged volume is bought at spot — protect yourself with forward hedges before then.',anchor:'main-grid'},
   {title:'Step 6 — The Trader',body:'You have trader credits to speak to a True Group trader for their expert opinion. Use them wisely.',anchor:'trade-controls'},
   {title:'Step 7 — Sell & Re-buy',body:'You can SELL hedged positions if the market drops after you bought. Your P&L on the round-trip is shown in the trade log.',anchor:'chart-section'}
@@ -1108,16 +1446,22 @@ function showTutStep(){
   const anchor=document.getElementById(s.anchor);
   if(anchor){
     const r=anchor.getBoundingClientRect();
-    box.style.top=Math.min(window.innerHeight-200,r.bottom+8)+'px';
-    box.style.left=Math.min(window.innerWidth-300,Math.max(10,r.left))+'px';
+    const boxH=220,boxW=300;
+    let top=r.bottom+8;
+    // If tooltip would fall below viewport, position above the anchor instead
+    if(top+boxH>window.innerHeight-10) top=Math.max(10,r.top-boxH-8);
+    // Final clamp to viewport
+    top=Math.max(10,Math.min(window.innerHeight-boxH-10,top));
+    box.style.top=top+'px';
+    box.style.left=Math.min(window.innerWidth-boxW-10,Math.max(10,r.left))+'px';
   } else {box.style.top='80px';box.style.left='20px';}
 }
 function tutNext(){tutStep++;showTutStep();}
 function tutSkip(){hideTutorial();}
 function hideTutorial(){document.getElementById('tut-box').style.display='none';tutStep=-1;}
 
-// Resize listener for dynamic bar chart
-window.addEventListener('resize',()=>{if(gs.dm&&gs.dm.length) renderBarChart();});
+// Resize listeners for dynamic charts
+window.addEventListener('resize',()=>{if(gs.dm&&gs.dm.length){renderBarChart();renderCurveChart();}});
 </script>
 </body>
 </html>

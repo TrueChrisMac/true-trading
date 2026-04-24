@@ -354,14 +354,14 @@ select:focus{outline:none;border-color:var(--black)}
     <h3>Achieved Price vs Market Average</h3>
     <svg id="end-chart" viewBox="0 0 720 180" preserveAspectRatio="none"></svg>
   </div>
-  <div class="esec"><h3>Strategy Breakdown</h3><div id="end-strategy"></div></div>
-  <div class="esec"><h3>Best &amp; Worst Decisions</h3><div id="end-decisions"></div></div>
-  <div class="esec"><h3>Key Market Events</h3><div id="end-events"></div></div>
   <div class="esec" id="end-leaderboard-sec" style="display:none">
     <h3>Leaderboard</h3>
     <div id="end-leaderboard-status" style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:500"></div>
     <div id="end-leaderboard"></div>
   </div>
+  <div class="esec"><h3>Strategy Breakdown</h3><div id="end-strategy"></div></div>
+  <div class="esec"><h3>Best &amp; Worst Decisions</h3><div id="end-decisions"></div></div>
+  <div class="esec"><h3>Key Market Events</h3><div id="end-events"></div></div>
   <button class="btn btn-end" style="margin-top:8px" onclick="backToStart()">Play Again →</button>
 </div>
 
@@ -412,7 +412,8 @@ document.addEventListener('DOMContentLoaded',()=>{
 async function saveResult(data){
   if(!db) return;
   try{
-    await db.from('game_results').insert({
+    await db.from('game_results').upsert({
+      session_id:gs.sessionId,
       player_name:data.playerName,
       game_years:data.gameYears,
       player_avg:parseFloat(data.playerAvg.toFixed(2)),
@@ -420,9 +421,44 @@ async function saveResult(data){
       saving_per_mwh:parseFloat(data.saving.toFixed(2)),
       total_impact_gbp:Math.round(data.totalImpact),
       grade:data.grade,
-      turns_taken:data.turns
-    });
+      turns_taken:data.turns,
+      status:'completed'
+    },{onConflict:'session_id'});
   } catch(e){console.warn('Save failed:',e);throw e;}
+}
+
+async function saveProgressToLeaderboard(){
+  if(!db||!gs.isLive||!gs.playerName) return;
+  const nm=gs.numMonths;
+  let portCost=0;
+  gs.dm.forEach(dm=>{
+    if(dm.status==='cashed_out'){
+      portCost+=dm.totalHedgeCost-dm.realizedPnl;
+    } else {
+      portCost+=(dm.totalHedgeCost-dm.realizedPnl)+dm.openGWh*(gs.fc[dm.id]||gs.baseLevel);
+    }
+  });
+  const playerAvg=portCost/(nm*10);
+  const allBench=gs.dm.map(d=>marketAvg(d.id)||(gs.fc[d.id]||gs.baseLevel));
+  const benchAvg=allBench.reduce((s,v)=>s+v,0)/allBench.length;
+  const saving=benchAvg-playerAvg;
+  const totalImpact=saving*nm*10000;
+  const grades=[{min:5,l:'Master Buyer'},{min:2,l:'Sharp Procurement'},{min:0,l:'Market Tracker'},{min:-2,l:'Needs Work'},{min:-999,l:'Blown the Budget'}];
+  const grade=grades.find(g=>saving>=g.min)||grades[grades.length-1];
+  try{
+    await db.from('game_results').upsert({
+      session_id:gs.sessionId,
+      player_name:gs.playerName,
+      game_years:gs.gameYears,
+      player_avg:parseFloat(playerAvg.toFixed(2)),
+      market_avg:parseFloat(benchAvg.toFixed(2)),
+      saving_per_mwh:parseFloat(saving.toFixed(2)),
+      total_impact_gbp:Math.round(totalImpact),
+      grade:grade.l,
+      turns_taken:gs.turn,
+      status:'in_progress'
+    },{onConflict:'session_id'});
+  } catch(e){console.warn('Progress save failed:',e);}
 }
 
 async function loadAndRenderLeaderboard(gameYears,myName,mySaving){
@@ -434,7 +470,7 @@ async function loadAndRenderLeaderboard(gameYears,myName,mySaving){
   if(!db){statusEl.textContent='Leaderboard unavailable (offline).';return;}
   try{
     const {data,error}=await db.from('game_results')
-      .select('player_name,saving_per_mwh,player_avg,market_avg,total_impact_gbp,grade,created_at')
+      .select('player_name,saving_per_mwh,player_avg,market_avg,total_impact_gbp,grade,status,created_at')
       .eq('game_years',gameYears)
       .order('saving_per_mwh',{ascending:false})
       .limit(10);
@@ -448,9 +484,10 @@ async function loadAndRenderLeaderboard(gameYears,myName,mySaving){
       const imp=r.total_impact_gbp??null;
       const impTxt=imp===null?'—':(imp>=0?'+':'')+( Math.abs(imp)>=1000000?'£'+Math.round(Math.abs(imp)).toLocaleString('en-GB'):'£'+Math.round(Math.abs(imp)/1000)+'k');
       const impClass=imp===null?'':(imp>=0?' lb-saving pos':' lb-saving neg');
+      const inProgress=r.status==='in_progress';
       h+=`<div class="lb-row${isMe?' lb-me':''}">
         <span class="lb-rank">${i+1}</span>
-        <span class="lb-name">${r.player_name}${isMe?' ← you':''}</span>
+        <span class="lb-name">${r.player_name}${isMe?' ← you':''}${inProgress?' <span style="font-size:9px;color:var(--muted);font-weight:500">(playing)</span>':''}</span>
         <span>£${r.player_avg.toFixed(2)}</span>
         <span>£${r.market_avg.toFixed(2)}</span>
         <span class="lb-saving ${sClass}">${sign}£${Math.abs(r.saving_per_mwh).toFixed(2)}</span>
@@ -596,7 +633,8 @@ function initGame(years,isLive,playerName){
     selectedMonths:new Set(),
     commLines:['','',''],lastCommTurn:-1,
     prevCurve:{},baseLevel:85,futureShift:randn(0,4.6),
-    fwdAvgHistory:[],posBarYear:0
+    fwdAvgHistory:[],posBarYear:0,
+    sessionId:(typeof crypto!=='undefined'&&crypto.randomUUID?crypto.randomUUID():Date.now().toString(36))
   };
   for(let d=0;d<nm;d++){
     gs.dm.push(makeDM(d));
@@ -762,6 +800,7 @@ function endTurn(){
     setTimeout(()=>showEndScreen(),700);
     return;
   }
+  saveProgressToLeaderboard();
   renderAll();
   showMarketSummary(prevCurve,prevCashedIds);
 }

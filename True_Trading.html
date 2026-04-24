@@ -158,6 +158,8 @@ select:focus{outline:none;border-color:var(--black)}
 
 /* ── LEADERBOARD ─────────────────────────────────────────────── */
 .lb-row{display:grid;grid-template-columns:28px 1fr 90px 90px 80px 90px;align-items:center;padding:7px 0;border-bottom:1px solid var(--hairline);font-size:12px;font-weight:500;color:var(--muted)}
+.lb-row-start{display:grid;grid-template-columns:28px 1fr 44px 80px 90px;align-items:center;padding:7px 0;border-bottom:1px solid var(--hairline);font-size:12px;font-weight:500;color:var(--muted)}
+.lb-row-start.lb-head{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--hairline)}
 .lb-row.lb-head{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--hairline)}
 .lb-row.lb-me{background:var(--warn-wash);margin:0 -4px;padding:7px 4px;border-radius:6px;color:var(--ink)}
 .lb-rank{font-weight:700;color:var(--black)}.lb-name{font-weight:600;color:var(--ink)}.lb-saving{font-weight:700}.lb-saving.pos{color:var(--good)}.lb-saving.neg{color:var(--danger)}
@@ -202,6 +204,11 @@ select:focus{outline:none;border-color:var(--black)}
       <p>36 delivery months<br>~39 trading turns<br>Full challenge</p>
       <div class="yc-cta">Select →</div>
     </div>
+  </div>
+  <div id="start-lb-wrap" style="width:100%;max-width:640px;margin-top:32px;text-align:left">
+    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Live Leaderboard</div>
+    <div id="start-lb-status" style="font-size:12px;color:var(--muted);font-weight:500;margin-bottom:6px"></div>
+    <div id="start-lb"></div>
   </div>
 </div>
 
@@ -407,6 +414,7 @@ function startLive(){
 document.addEventListener('DOMContentLoaded',()=>{
   const inp=document.getElementById('player-name-input');
   if(inp) inp.addEventListener('keydown',e=>{if(e.key==='Enter') startLive();});
+  loadStartLeaderboard();
 });
 
 async function saveResult(data){
@@ -502,6 +510,43 @@ async function loadAndRenderLeaderboard(gameYears,myName,mySaving){
       : '';
     statusEl.textContent='Could not load leaderboard: '+msg+hint;
     console.warn('Leaderboard error:',e);
+  }
+}
+
+async function loadStartLeaderboard(){
+  const statusEl=document.getElementById('start-lb-status');
+  const lbEl=document.getElementById('start-lb');
+  if(!lbEl) return;
+  if(!db){lbEl.innerHTML='';statusEl.textContent='';return;}
+  statusEl.textContent='Loading...';
+  try{
+    const {data,error}=await db.from('game_results')
+      .select('player_name,saving_per_mwh,total_impact_gbp,grade,game_years,status')
+      .order('saving_per_mwh',{ascending:false})
+      .limit(10);
+    if(error) throw error;
+    if(!data||!data.length){statusEl.textContent='No scores yet — be the first!';lbEl.innerHTML='';return;}
+    statusEl.textContent='Top scores across all contracts';
+    let h=`<div class="lb-row-start lb-head"><span>#</span><span>Player</span><span>Yrs</span><span>Saving/MWh</span><span>Total Impact</span></div>`;
+    data.forEach((r,i)=>{
+      const sClass=r.saving_per_mwh>=0?'pos':'neg';
+      const sign=r.saving_per_mwh>=0?'+':'';
+      const imp=r.total_impact_gbp??null;
+      const impTxt=imp===null?'—':(imp>=0?'+':'-')+(Math.abs(imp)>=1000000?'£'+Math.round(Math.abs(imp)).toLocaleString('en-GB'):'£'+Math.round(Math.abs(imp)/1000)+'k');
+      const impClass=imp===null?'':' lb-saving '+(imp>=0?'pos':'neg');
+      const inProgress=r.status==='in_progress';
+      h+=`<div class="lb-row-start">
+        <span class="lb-rank">${i+1}</span>
+        <span class="lb-name">${r.player_name}${inProgress?' <span style="font-size:9px;color:var(--muted);font-weight:500">(playing)</span>':''}</span>
+        <span style="color:var(--muted)">${r.game_years}yr</span>
+        <span class="lb-saving ${sClass}">${sign}£${Math.abs(r.saving_per_mwh).toFixed(2)}</span>
+        <span class="${impClass}">${impTxt}</span>
+      </div>`;
+    });
+    lbEl.innerHTML=h;
+  } catch(e){
+    statusEl.textContent='';lbEl.innerHTML='';
+    console.warn('Start leaderboard error:',e);
   }
 }
 
@@ -615,6 +660,7 @@ function backToStart(){
   document.getElementById('end-leaderboard-sec').style.display='none';
   document.getElementById('game-screen').style.display='none';
   document.getElementById('start-screen').style.display='flex';
+  loadStartLeaderboard();
 }
 
 function initGame(years,isLive,playerName){

@@ -490,7 +490,7 @@ async function loadAndRenderLeaderboard(gameYears,myName,mySaving){
       const sClass=r.saving_per_mwh>=0?'pos':'neg';
       const sign=r.saving_per_mwh>=0?'+':'';
       const imp=r.total_impact_gbp??null;
-      const impTxt=imp===null?'—':(imp>=0?'+':'')+( Math.abs(imp)>=1000000?'£'+Math.round(Math.abs(imp)).toLocaleString('en-GB'):'£'+Math.round(Math.abs(imp)/1000)+'k');
+      const impTxt=imp===null?'—':'+'+( Math.abs(imp)>=1000000?'£'+Math.round(Math.abs(imp)).toLocaleString('en-GB'):'£'+Math.round(Math.abs(imp)/1000)+'k');
       const impClass=imp===null?'':(imp>=0?' lb-saving pos':' lb-saving neg');
       const inProgress=r.status==='in_progress';
       h+=`<div class="lb-row${isMe?' lb-me':''}">
@@ -532,7 +532,7 @@ async function loadStartLeaderboard(){
       const sClass=r.saving_per_mwh>=0?'pos':'neg';
       const sign=r.saving_per_mwh>=0?'+':'';
       const imp=r.total_impact_gbp??null;
-      const impTxt=imp===null?'—':(imp>=0?'+':'-')+(Math.abs(imp)>=1000000?'£'+Math.round(Math.abs(imp)).toLocaleString('en-GB'):'£'+Math.round(Math.abs(imp)/1000)+'k');
+      const impTxt=imp===null?'—':'+'+(Math.abs(imp)>=1000000?'£'+Math.round(Math.abs(imp)).toLocaleString('en-GB'):'£'+Math.round(Math.abs(imp)/1000)+'k');
       const impClass=imp===null?'':' lb-saving '+(imp>=0?'pos':'neg');
       const inProgress=r.status==='in_progress';
       h+=`<div class="lb-row-start">

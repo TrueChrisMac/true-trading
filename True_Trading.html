@@ -221,9 +221,12 @@ select:focus{outline:none;border-color:var(--black)}
       <div id="hd-month-big">—</div>
       <div id="hd-month-sub">Current trading month</div>
     </div>
-    <div id="hd-right">
-      <div id="prog-bar"><div id="prog-fill" style="width:0%"></div></div>
-      <div id="prog-text">Turn 1</div>
+    <div id="hd-right" style="display:flex;align-items:center;gap:14px">
+      <button onclick="showTutorial()" title="Help" style="background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.25);color:#fff;width:28px;height:28px;border-radius:50%;font-size:15px;font-weight:700;cursor:pointer;line-height:1;padding:0;flex-shrink:0">?</button>
+      <div>
+        <div id="prog-bar"><div id="prog-fill" style="width:0%"></div></div>
+        <div id="prog-text">Turn 1</div>
+      </div>
     </div>
   </div>
 

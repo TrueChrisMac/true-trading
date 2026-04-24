@@ -181,7 +181,7 @@ select:focus{outline:none;border-color:var(--black)}
 
 <!-- START SCREEN -->
 <div id="start-screen">
-  <img src="True_Group_Black_Logo.png" alt="True Group" style="height:60px;margin-bottom:24px;display:block">
+  <img src="assets/logo-black.png" alt="True Group" style="height:60px;margin-bottom:24px;display:block">
   <div class="start-logo">TRUE <span>TRADING</span></div>
   <div class="start-pill">True Group Energy Advisory</div>
   <p class="start-sub">You are Head of Energy Procurement for a 120 GWh/year business. Buy power for your company's needs and beat the market average price.</p>
@@ -209,7 +209,7 @@ select:focus{outline:none;border-color:var(--black)}
 <div id="game-screen" style="display:none">
 
   <div id="header">
-    <div id="hd-logo"><img src="True%20Group%20Design%20System/assets/logos/true-group-logo-white.png" alt="True Group" style="height:22px;display:block"></div>
+    <div id="hd-logo"><img src="assets/logo-white.png" alt="True Group" style="height:22px;display:block"></div>
     <div id="hd-month">
       <div id="hd-month-big">—</div>
       <div id="hd-month-sub">Current trading month</div>
@@ -341,7 +341,7 @@ select:focus{outline:none;border-color:var(--black)}
 
 <!-- END SCREEN -->
 <div id="end-screen">
-  <img src="True_Group_Black_Logo.png" alt="True Group" style="height:32px;margin-bottom:20px;display:block">
+  <img src="assets/logo-black.png" alt="True Group" style="height:32px;margin-bottom:20px;display:block">
   <h1>Game Over</h1>
   <div id="end-headline" style="font-size:15px;color:var(--muted);margin-bottom:6px;font-weight:500"></div>
   <div class="grade-text" id="end-grade"></div>
@@ -422,7 +422,7 @@ async function saveResult(data){
       grade:data.grade,
       turns_taken:data.turns
     });
-  } catch(e){console.warn('Save failed:',e);}
+  } catch(e){console.warn('Save failed:',e);throw e;}
 }
 
 async function loadAndRenderLeaderboard(gameYears,myName,mySaving){
@@ -454,7 +454,14 @@ async function loadAndRenderLeaderboard(gameYears,myName,mySaving){
       </div>`;
     });
     lbEl.innerHTML=h;
-  } catch(e){statusEl.textContent='Could not load leaderboard.';console.warn(e);}
+  } catch(e){
+    const msg=e?.message||String(e);
+    const hint=msg.includes('does not exist')||msg.includes('42P01')
+      ? ' (table not set up yet — run the SQL in Supabase)'
+      : '';
+    statusEl.textContent='Could not load leaderboard: '+msg+hint;
+    console.warn('Leaderboard error:',e);
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════

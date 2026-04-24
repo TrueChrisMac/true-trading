@@ -157,7 +157,7 @@ select:focus{outline:none;border-color:var(--black)}
 #player-name-input:focus{border-color:var(--black)}
 
 /* ── LEADERBOARD ─────────────────────────────────────────────── */
-.lb-row{display:grid;grid-template-columns:28px 1fr 90px 90px 80px;align-items:center;padding:7px 0;border-bottom:1px solid var(--hairline);font-size:12px;font-weight:500;color:var(--muted)}
+.lb-row{display:grid;grid-template-columns:28px 1fr 90px 90px 80px 90px;align-items:center;padding:7px 0;border-bottom:1px solid var(--hairline);font-size:12px;font-weight:500;color:var(--muted)}
 .lb-row.lb-head{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--hairline)}
 .lb-row.lb-me{background:var(--warn-wash);margin:0 -4px;padding:7px 4px;border-radius:6px;color:var(--ink)}
 .lb-rank{font-weight:700;color:var(--black)}.lb-name{font-weight:600;color:var(--ink)}.lb-saving{font-weight:700}.lb-saving.pos{color:var(--good)}.lb-saving.neg{color:var(--danger)}
@@ -434,23 +434,27 @@ async function loadAndRenderLeaderboard(gameYears,myName,mySaving){
   if(!db){statusEl.textContent='Leaderboard unavailable (offline).';return;}
   try{
     const {data,error}=await db.from('game_results')
-      .select('player_name,saving_per_mwh,player_avg,market_avg,grade,created_at')
+      .select('player_name,saving_per_mwh,player_avg,market_avg,total_impact_gbp,grade,created_at')
       .eq('game_years',gameYears)
       .order('saving_per_mwh',{ascending:false})
       .limit(10);
     if(error) throw error;
     statusEl.textContent=`Top 10 · ${gameYears}-year contracts`;
-    let h=`<div class="lb-row lb-head"><span>#</span><span>Player</span><span>Portfolio</span><span>Market Avg</span><span>Saving/MWh</span></div>`;
+    let h=`<div class="lb-row lb-head"><span>#</span><span>Player</span><span>Portfolio</span><span>Market Avg</span><span>Saving/MWh</span><span>Total Impact</span></div>`;
     (data||[]).forEach((r,i)=>{
       const isMe=r.player_name===myName&&Math.abs(r.saving_per_mwh-mySaving)<0.05;
       const sClass=r.saving_per_mwh>=0?'pos':'neg';
       const sign=r.saving_per_mwh>=0?'+':'';
+      const imp=r.total_impact_gbp??null;
+      const impTxt=imp===null?'—':(imp>=0?'+':'')+( Math.abs(imp)>=1000000?'£'+Math.round(Math.abs(imp)).toLocaleString('en-GB'):'£'+Math.round(Math.abs(imp)/1000)+'k');
+      const impClass=imp===null?'':(imp>=0?' lb-saving pos':' lb-saving neg');
       h+=`<div class="lb-row${isMe?' lb-me':''}">
         <span class="lb-rank">${i+1}</span>
         <span class="lb-name">${r.player_name}${isMe?' ← you':''}</span>
         <span>£${r.player_avg.toFixed(2)}</span>
         <span>£${r.market_avg.toFixed(2)}</span>
         <span class="lb-saving ${sClass}">${sign}£${Math.abs(r.saving_per_mwh).toFixed(2)}</span>
+        <span class="${impClass}">${impTxt}</span>
       </div>`;
     });
     lbEl.innerHTML=h;

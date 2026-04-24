@@ -559,7 +559,7 @@ let gs={};
 
 function makeDM(d){
   return{id:d,label:dLbl(d),hedgedGWh:0,openGWh:10,hedgedPct:0,openPct:100,
-    avgHedgePrice:null,totalHedgeCost:0,cashoutPrice:null,status:'open',
+    avgHedgePrice:null,totalHedgeCost:0,realizedPnl:0,cashoutPrice:null,status:'open',
     lastUnwindPrice:null,lastUnwindPct:0,trades:[]};
 }
 
@@ -861,6 +861,7 @@ function doSell(){
     dm.hedgedGWh-=gwh;dm.openGWh=10-dm.hedgedGWh;
     dm.hedgedPct=Math.round(dm.hedgedGWh*10);dm.openPct=100-dm.hedgedPct;
     dm.totalHedgeCost-=orig*gwh;
+    dm.realizedPnl+=(price-orig)*gwh;  // capture sell profit; negative if sold below cost
     dm.avgHedgePrice=dm.hedgedGWh>0.01?dm.totalHedgeCost/dm.hedgedGWh:null;
     dm.status=dm.hedgedGWh<0.01?'open':dm.openGWh<0.01?'full':'partial';
     dm.trades.push({type:'sell',pct,price,turn:gs.turn});
@@ -1106,7 +1107,7 @@ function renderPosBar(){
   allDms.forEach(dm=>{
     // Settled: totalHedgeCost already includes spot cashout on open volume
     // Active: locked hedge cost + open volume marked to current forward
-    portCost+=dm.totalHedgeCost+(dm.status!=='cashed_out'?dm.openGWh*gs.fc[dm.id]:0);
+    portCost+=(dm.totalHedgeCost-dm.realizedPnl)+(dm.status!=='cashed_out'?dm.openGWh*gs.fc[dm.id]:0);
   });
   const portVol=allDms.length*10;
   const portAvg=portVol>0?portCost/portVol:null;
@@ -1215,7 +1216,7 @@ function renderBarChart(){
       if(dm.cashoutPrice){
         h+=`<text x="${x+barW/2}" y="${avgLabY}" fill="#5A6A7A" font-size="${fs}" text-anchor="middle" font-family="monospace">sp £${fmt(dm.cashoutPrice)}</text>`;
         if(ma!==null){
-          const realEff=dm.totalHedgeCost/10;
+          const realEff=(dm.totalHedgeCost-dm.realizedPnl)/10;
           const realDelta=ma-realEff;
           const dK=Math.round(realDelta*10000/1000);
           const dCol=realDelta>=0?'#27AE60':'#E74C3B';
@@ -1266,7 +1267,7 @@ function showEndScreen(){
     if(dm.cashoutPrice==null){dm.cashoutPrice=gs.fc[dm.id]||85;dm.totalHedgeCost+=dm.cashoutPrice*dm.openGWh;}
   });
   const nm=gs.numMonths;
-  const totalCost=gs.dm.reduce((s,d)=>s+d.totalHedgeCost,0);
+  const totalCost=gs.dm.reduce((s,d)=>s+(d.totalHedgeCost-d.realizedPnl),0);
   const playerAvg=totalCost/(nm*10);
   const mAvgs=gs.dm.map(d=>marketAvg(d.id)).filter(v=>v!==null);
   const benchAvg=mAvgs.length?mAvgs.reduce((s,v)=>s+v,0)/mAvgs.length:85;
@@ -1285,7 +1286,7 @@ function showEndScreen(){
   // Chart
   const svg=document.getElementById('end-chart');
   const W=720,H=180;
-  const allP=gs.dm.map(d=>d.totalHedgeCost/10).concat(mAvgs);
+  const allP=gs.dm.map(d=>(d.totalHedgeCost-d.realizedPnl)/10).concat(mAvgs);
   if(!allP.length){svg.innerHTML='';return;}
   const minP=Math.min(...allP)-3,maxP=Math.max(...allP)+3;
   const yc=p=>10+(maxP-p)/(maxP-minP)*150;
@@ -1293,7 +1294,7 @@ function showEndScreen(){
   let ch=`<line x1="0" y1="${yc(benchAvg)}" x2="${W}" y2="${yc(benchAvg)}" stroke="#00B0F0" stroke-width="1.5" stroke-dasharray="4,3"/>`;
   ch+=`<text x="${W-4}" y="${yc(benchAvg)-4}" fill="#00B0F0" font-size="8" text-anchor="end" font-weight="600">Mkt avg £${fmt(benchAvg)}</text>`;
   gs.dm.forEach((dm,i)=>{
-    const x=i*(bw+1),ep=dm.totalHedgeCost/10;
+    const x=i*(bw+1),ep=(dm.totalHedgeCost-dm.realizedPnl)/10;
     const ma=marketAvg(dm.id)||benchAvg;
     ch+=`<rect x="${x}" y="${yc(ep)}" width="${bw}" height="${H-5-yc(ep)}" fill="${ep<=ma?'#27AE60':'#E74C3B'}" opacity=".85"/>`;
     ch+=`<line x1="${x}" y1="${yc(ma)}" x2="${x+bw}" y2="${yc(ma)}" stroke="#00B0F0" stroke-width="1.5"/>`;
@@ -1308,7 +1309,7 @@ function showEndScreen(){
     <div class="di">Operational breakdowns hit: <span>${gs.breakdownTurns.size} turn(s)</span></div>`;
 
   const decs=gs.dm.map(dm=>{
-    const ep=dm.totalHedgeCost/10;
+    const ep=(dm.totalHedgeCost-dm.realizedPnl)/10;
     const ma=marketAvg(dm.id)||benchAvg;
     return{label:dm.label,ep,ma,delta:ma-ep};
   }).sort((a,b)=>b.delta-a.delta);

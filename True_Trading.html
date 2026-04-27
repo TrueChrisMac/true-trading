@@ -507,7 +507,7 @@ async function loadAndRenderLeaderboard(gameYears,myName,mySaving){
     const {data,error}=await db.from('game_results')
       .select('player_name,saving_per_mwh,player_avg,market_avg,total_impact_gbp,grade,status,created_at')
       .eq('game_years',gameYears)
-      .neq('status','in_progress')
+      .or('status.eq.completed,status.is.null')
       .order('saving_per_mwh',{ascending:false})
       .limit(10);
     if(error) throw error;
@@ -561,7 +561,7 @@ async function loadStartLeaderboard(yearFilter){
   try{
     let q=db.from('game_results')
       .select('player_name,saving_per_mwh,total_impact_gbp,grade,game_years,status')
-      .neq('status','in_progress')
+      .or('status.eq.completed,status.is.null')
       .order(y===0?'total_impact_gbp':'saving_per_mwh',{ascending:false})
       .limit(10);
     if(y>0) q=q.eq('game_years',y);

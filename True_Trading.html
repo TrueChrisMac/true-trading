@@ -159,6 +159,7 @@ select:focus{outline:none;border-color:var(--black)}
 /* ── LEADERBOARD ─────────────────────────────────────────────── */
 .lb-row{display:grid;grid-template-columns:28px 1fr 90px 90px 80px 90px;align-items:center;padding:7px 0;border-bottom:1px solid var(--hairline);font-size:12px;font-weight:500;color:var(--muted)}
 .lb-row-start{display:grid;grid-template-columns:28px 1fr 44px 80px 90px;align-items:center;padding:7px 0;border-bottom:1px solid var(--hairline);font-size:12px;font-weight:500;color:var(--muted)}
+.lb-row-start.no-yrs{grid-template-columns:28px 1fr 100px 110px}
 .lb-row-start.lb-head{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--hairline)}
 .slb-tab{background:transparent;border:1.5px solid var(--hairline);border-radius:var(--radius-pill);padding:4px 12px;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;font-family:'Poppins',sans-serif;transition:all .15s}
 .slb-tab:hover{border-color:var(--black);color:var(--black)}
@@ -559,7 +560,7 @@ async function loadStartLeaderboard(yearFilter){
   try{
     let q=db.from('game_results')
       .select('player_name,saving_per_mwh,total_impact_gbp,grade,game_years,status')
-      .order('saving_per_mwh',{ascending:false})
+      .order(y===0?'total_impact_gbp':'saving_per_mwh',{ascending:false})
       .limit(10);
     if(y>0) q=q.eq('game_years',y);
     const {data,error}=await q;
@@ -567,7 +568,8 @@ async function loadStartLeaderboard(yearFilter){
     if(!data||!data.length){statusEl.textContent='No scores yet — be the first!';lbEl.innerHTML='';return;}
     statusEl.textContent=y>0?`Top scores · ${y}-year contracts`:'Top scores across all contracts';
     const showYrs=y===0;
-    let h=`<div class="lb-row-start lb-head"><span>#</span><span>Player</span>${showYrs?'<span>Yrs</span>':''}<span>Saving/MWh</span><span>Total Impact</span></div>`;
+    const rowCls='lb-row-start'+(showYrs?'':' no-yrs');
+    let h=`<div class="${rowCls} lb-head"><span>#</span><span>Player</span>${showYrs?'<span>Yrs</span>':''}<span>Saving/MWh</span><span>Total Impact</span></div>`;
     data.forEach((r,i)=>{
       const sClass=r.saving_per_mwh>=0?'pos':'neg';
       const sign=r.saving_per_mwh>=0?'+':'';
@@ -575,7 +577,7 @@ async function loadStartLeaderboard(yearFilter){
       const impTxt=imp===null?'—':(imp>=0?'-':'+')+( Math.abs(imp)>=1000000?'£'+Math.round(Math.abs(imp)).toLocaleString('en-GB'):'£'+Math.round(Math.abs(imp)/1000)+'k');
       const impClass=imp===null?'':' lb-saving '+(imp>=0?'pos':'neg');
       const inProgress=r.status==='in_progress';
-      h+=`<div class="lb-row-start">
+      h+=`<div class="${rowCls}">
         <span class="lb-rank">${i+1}</span>
         <span class="lb-name">${r.player_name}${inProgress?' <span style="font-size:9px;color:var(--muted);font-weight:500">(playing)</span>':''}</span>
         ${showYrs?`<span style="color:var(--muted)">${r.game_years}yr</span>`:''}

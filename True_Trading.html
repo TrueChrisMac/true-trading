@@ -422,20 +422,28 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 async function saveResult(data){
   if(!db) return;
-  try{
-    await db.from('game_results').upsert({
-      session_id:gs.sessionId,
-      player_name:data.playerName,
-      game_years:data.gameYears,
-      player_avg:parseFloat(data.playerAvg.toFixed(2)),
-      market_avg:parseFloat(data.benchAvg.toFixed(2)),
-      saving_per_mwh:parseFloat(data.saving.toFixed(2)),
-      total_impact_gbp:Math.round(data.totalImpact),
-      grade:data.grade,
-      turns_taken:data.turns,
-      status:'completed'
-    },{onConflict:'session_id'});
-  } catch(e){console.warn('Save failed:',e);throw e;}
+  const full={
+    session_id:gs.sessionId,
+    player_name:data.playerName,
+    game_years:data.gameYears,
+    player_avg:parseFloat(data.playerAvg.toFixed(2)),
+    market_avg:parseFloat(data.benchAvg.toFixed(2)),
+    saving_per_mwh:parseFloat(data.saving.toFixed(2)),
+    total_impact_gbp:Math.round(data.totalImpact),
+    grade:data.grade,
+    turns_taken:data.turns,
+    status:'completed'
+  };
+  // Try upsert (requires SQL migration); fall back to plain insert for pre-migration tables
+  let err=null;
+  const {error:e1}=await db.from('game_results').upsert(full,{onConflict:'session_id'});
+  if(e1){
+    console.warn('Upsert failed, trying insert:',e1);
+    const {player_name,game_years,player_avg,market_avg,saving_per_mwh,total_impact_gbp,grade,turns_taken}=full;
+    const {error:e2}=await db.from('game_results').insert({player_name,game_years,player_avg,market_avg,saving_per_mwh,total_impact_gbp,grade,turns_taken});
+    err=e2;
+  }
+  if(err) throw err;
 }
 
 async function saveProgressToLeaderboard(){
@@ -456,20 +464,24 @@ async function saveProgressToLeaderboard(){
   const totalImpact=saving*nm*10000;
   const grades=[{min:5,l:'Master Buyer'},{min:2,l:'Sharp Procurement'},{min:0,l:'Market Tracker'},{min:-2,l:'Needs Work'},{min:-999,l:'Blown the Budget'}];
   const grade=grades.find(g=>saving>=g.min)||grades[grades.length-1];
-  try{
-    await db.from('game_results').upsert({
-      session_id:gs.sessionId,
-      player_name:gs.playerName,
-      game_years:gs.gameYears,
-      player_avg:parseFloat(playerAvg.toFixed(2)),
-      market_avg:parseFloat(benchAvg.toFixed(2)),
-      saving_per_mwh:parseFloat(saving.toFixed(2)),
-      total_impact_gbp:Math.round(totalImpact),
-      grade:grade.l,
-      turns_taken:gs.turn,
-      status:'in_progress'
-    },{onConflict:'session_id'});
-  } catch(e){console.warn('Progress save failed:',e);}
+  const full={
+    session_id:gs.sessionId,
+    player_name:gs.playerName,
+    game_years:gs.gameYears,
+    player_avg:parseFloat(playerAvg.toFixed(2)),
+    market_avg:parseFloat(benchAvg.toFixed(2)),
+    saving_per_mwh:parseFloat(saving.toFixed(2)),
+    total_impact_gbp:Math.round(totalImpact),
+    grade:grade.l,
+    turns_taken:gs.turn,
+    status:'in_progress'
+  };
+  const {error:e1}=await db.from('game_results').upsert(full,{onConflict:'session_id'});
+  if(e1){
+    // Fall back to plain insert (pre-migration table — no session_id column yet)
+    const {player_name,game_years,player_avg,market_avg,saving_per_mwh,total_impact_gbp,grade:g,turns_taken}=full;
+    await db.from('game_results').insert({player_name,game_years,player_avg,market_avg,saving_per_mwh,total_impact_gbp,grade:g,turns_taken});
+  }
 }
 
 async function loadAndRenderLeaderboard(gameYears,myName,mySaving){
@@ -1447,11 +1459,21 @@ function showEndScreen(){
   // Leaderboard: hide by default, show and populate if Live mode
   document.getElementById('end-leaderboard-sec').style.display='none';
   if(gs.isLive&&gs.playerName){
+    const lbSec=document.getElementById('end-leaderboard-sec');
+    const lbStatus=document.getElementById('end-leaderboard-status');
+    lbSec.style.display='block';
+    lbStatus.textContent='Saving your score…';
     saveResult({
       playerName:gs.playerName,gameYears:gs.gameYears,
       playerAvg,benchAvg,saving,totalImpact,
       grade:grade.l,turns:gs.turn
-    }).then(()=>loadAndRenderLeaderboard(gs.gameYears,gs.playerName,saving));
+    }).then(()=>{
+      lbStatus.textContent='';
+      loadAndRenderLeaderboard(gs.gameYears,gs.playerName,saving);
+    }).catch(e=>{
+      lbStatus.innerHTML=`<span style="color:var(--danger)">⚠ Score not saved: ${e?.message||e}. Ask Chris to check the Supabase SQL migration has been run.</span>`;
+      loadAndRenderLeaderboard(gs.gameYears,gs.playerName,saving);
+    });
   }
 
   // Market Journey chart

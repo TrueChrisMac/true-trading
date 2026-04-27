@@ -160,6 +160,9 @@ select:focus{outline:none;border-color:var(--black)}
 .lb-row{display:grid;grid-template-columns:28px 1fr 90px 90px 80px 90px;align-items:center;padding:7px 0;border-bottom:1px solid var(--hairline);font-size:12px;font-weight:500;color:var(--muted)}
 .lb-row-start{display:grid;grid-template-columns:28px 1fr 44px 80px 90px;align-items:center;padding:7px 0;border-bottom:1px solid var(--hairline);font-size:12px;font-weight:500;color:var(--muted)}
 .lb-row-start.lb-head{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--hairline)}
+.slb-tab{background:transparent;border:1.5px solid var(--hairline);border-radius:var(--radius-pill);padding:4px 12px;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;font-family:'Poppins',sans-serif;transition:all .15s}
+.slb-tab:hover{border-color:var(--black);color:var(--black)}
+.slb-tab-active{background:var(--black);color:#fff;border-color:var(--black)}
 .lb-row.lb-head{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--hairline)}
 .lb-row.lb-me{background:var(--warn-wash);margin:0 -4px;padding:7px 4px;border-radius:6px;color:var(--ink)}
 .lb-rank{font-weight:700;color:var(--black)}.lb-name{font-weight:600;color:var(--ink)}.lb-saving{font-weight:700}.lb-saving.pos{color:var(--good)}.lb-saving.neg{color:var(--danger)}
@@ -206,7 +209,15 @@ select:focus{outline:none;border-color:var(--black)}
     </div>
   </div>
   <div id="start-lb-wrap" style="width:100%;max-width:640px;margin-top:32px;text-align:left">
-    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Live Leaderboard</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">Live Leaderboard</div>
+      <div style="display:flex;gap:6px">
+        <button id="slb-tab-0" class="slb-tab slb-tab-active" onclick="setLbTab(0)">All</button>
+        <button id="slb-tab-1" class="slb-tab" onclick="setLbTab(1)">1 Year</button>
+        <button id="slb-tab-2" class="slb-tab" onclick="setLbTab(2)">2 Year</button>
+        <button id="slb-tab-3" class="slb-tab" onclick="setLbTab(3)">3 Year</button>
+      </div>
+    </div>
     <div id="start-lb-status" style="font-size:12px;color:var(--muted);font-weight:500;margin-bottom:6px"></div>
     <div id="start-lb"></div>
   </div>
@@ -528,21 +539,35 @@ async function loadAndRenderLeaderboard(gameYears,myName,mySaving){
   }
 }
 
-async function loadStartLeaderboard(){
+let _lbYear=0;
+function setLbTab(y){
+  _lbYear=y;
+  [0,1,2,3].forEach(i=>{
+    const el=document.getElementById('slb-tab-'+i);
+    if(el) el.className='slb-tab'+(i===y?' slb-tab-active':'');
+  });
+  loadStartLeaderboard(y);
+}
+
+async function loadStartLeaderboard(yearFilter){
+  const y=yearFilter!==undefined?yearFilter:_lbYear;
   const statusEl=document.getElementById('start-lb-status');
   const lbEl=document.getElementById('start-lb');
   if(!lbEl) return;
   if(!db){lbEl.innerHTML='';statusEl.textContent='';return;}
   statusEl.textContent='Loading...';
   try{
-    const {data,error}=await db.from('game_results')
+    let q=db.from('game_results')
       .select('player_name,saving_per_mwh,total_impact_gbp,grade,game_years,status')
       .order('saving_per_mwh',{ascending:false})
       .limit(10);
+    if(y>0) q=q.eq('game_years',y);
+    const {data,error}=await q;
     if(error) throw error;
     if(!data||!data.length){statusEl.textContent='No scores yet — be the first!';lbEl.innerHTML='';return;}
-    statusEl.textContent='Top scores across all contracts';
-    let h=`<div class="lb-row-start lb-head"><span>#</span><span>Player</span><span>Yrs</span><span>Saving/MWh</span><span>Total Impact</span></div>`;
+    statusEl.textContent=y>0?`Top scores · ${y}-year contracts`:'Top scores across all contracts';
+    const showYrs=y===0;
+    let h=`<div class="lb-row-start lb-head"><span>#</span><span>Player</span>${showYrs?'<span>Yrs</span>':''}<span>Saving/MWh</span><span>Total Impact</span></div>`;
     data.forEach((r,i)=>{
       const sClass=r.saving_per_mwh>=0?'pos':'neg';
       const sign=r.saving_per_mwh>=0?'+':'';
@@ -553,7 +578,7 @@ async function loadStartLeaderboard(){
       h+=`<div class="lb-row-start">
         <span class="lb-rank">${i+1}</span>
         <span class="lb-name">${r.player_name}${inProgress?' <span style="font-size:9px;color:var(--muted);font-weight:500">(playing)</span>':''}</span>
-        <span style="color:var(--muted)">${r.game_years}yr</span>
+        ${showYrs?`<span style="color:var(--muted)">${r.game_years}yr</span>`:''}
         <span class="lb-saving ${sClass}">${sign}£${Math.abs(r.saving_per_mwh).toFixed(2)}</span>
         <span class="${impClass}">${impTxt}</span>
       </div>`;

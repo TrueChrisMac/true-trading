@@ -840,6 +840,8 @@ function startTurn(){
   for(let d=0;d<gs.numMonths;d++){
     if(cashoutTurn(d)===t&&gs.dm[d].status!=='cashed_out') cashoutMonth(d);
   }
+  // Remove any cashed-out months from selection so they can't get stuck
+  gs.dm.filter(d=>d.status==='cashed_out').forEach(d=>gs.selectedMonths.delete(d.id));
   // Decay shocks
   gs.activeShocks=gs.activeShocks.filter(sh=>{sh.remaining--;return sh.remaining>0;});
   // Roll event
